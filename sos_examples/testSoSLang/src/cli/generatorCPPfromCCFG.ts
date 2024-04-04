@@ -6,9 +6,10 @@ import { extractDestinationAndName } from './cli-util';
 import { CCFGVisitor } from './generated/testFSE';
 import { CCFG, ContainerNode, Edge, Node, TypedElement } from '../ccfg/ccfglib';
 import chalk from 'chalk';
-
+import flatted from 'flatted';
 
 let debug = false;
+
 export function generateCPPfromCCFG(model: Model, filePath: string, targetDirectory: string | undefined, doDebug: boolean|undefined): string {
     const data = extractDestinationAndName(filePath, targetDirectory);
 
@@ -18,7 +19,14 @@ export function generateCPPfromCCFG(model: Model, filePath: string, targetDirect
     const generatedCodeFilePath = `${path.join(data.destination, data.name)}.cpp`;
     const cppFile = new CompositeGeneratorNode();
 
+
     let ccfg = doGenerateCCFG(dotFile, model);
+    //console.log(ccfg);
+    
+    /*here here here*/
+    let ccfgString = flatted.stringify(ccfg);
+    console.log(ccfgString);
+    
 
     if (!fs.existsSync(data.destination)) {
         fs.mkdirSync(data.destination, { recursive: true });
@@ -28,8 +36,6 @@ export function generateCPPfromCCFG(model: Model, filePath: string, targetDirect
 
     debug = doDebug != undefined ? doDebug : false;
     doGenerateCPP(cppFile, ccfg, debug);
-
-
     
 
     if (!fs.existsSync(data.destination)) {
@@ -143,7 +149,7 @@ let fifoThreadUid : MultiMap<number,number> = new MultiMap();
 let continuations: Node[] = []
 let continuationsRecursLevel: number[] = []
 let visitedUID: number[] = []
-let recursLevel = 0;
+let recursLevel = 0; 
 let createdQueueIds: number[] = []
 function visitAllNodes(ccfg:CCFG, currentNode: Node, codeFile: CompositeGeneratorNode, visitIsStarting: boolean = false): void {
     recursLevel = recursLevel + 1;
@@ -200,6 +206,7 @@ function visitAllNodes(ccfg:CCFG, currentNode: Node, codeFile: CompositeGenerato
     switch(currentNode.getType()){
     case "Step":
         {
+            //console.log(currentNode.functionsDefs);
         addCorrespondingCode(codeFile, currentNode,ccfg);
         if(currentNode.outputEdges.length > 1){
 
@@ -223,6 +230,11 @@ function visitAllNodes(ccfg:CCFG, currentNode: Node, codeFile: CompositeGenerato
         }
     case "Fork":
         {
+            if(currentNode.uid ==19){
+                let str =flatted.stringify(currentNode.outputEdges.length);
+                console.log(str);
+            }
+
         let edgeToVisit: Edge[] = currentNode.outputEdges;
         
         for(let syncUID of currentNode.syncNodeIds){

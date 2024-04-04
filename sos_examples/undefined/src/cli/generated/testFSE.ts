@@ -304,7 +304,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
 
 
-        let startsVariableNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}currentValue",new Number());//A1`])
+        let startsVariableNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}currentValue",new Number();//A1`])
         if(startsVariableNode.functionsDefs.length>0){
             startsVariableNode.returnType = "void"
         }
@@ -979,7 +979,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
 
 
-        let startsBooleanConstNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}constantValue",new Boolean(${node.value}));//A1`])
+        let startsBooleanConstNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}constantValue",new Boolean(${node.value});//A1`])
         if(startsBooleanConstNode.functionsDefs.length>0){
             startsBooleanConstNode.returnType = "void"
         }
