@@ -4,14 +4,15 @@ import { Model } from '../language-server/generated/ast';
 import { SimpleLLanguageMetaData } from '../language-server/generated/module';
 import { createSimpleLServices } from '../language-server/simple-l-module';
 import { extractAstNode } from './cli-util';
-import { generateCPPfromCCFG } from './generatorCPPfromCCFG';
+//import { generateCPPfromCCFG } from './generatorCPPfromCCFG';
+import { interpretfromCCFG } from './interpreterJS';
 import { NodeFileSystem } from 'langium/node';
 
-export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
+export const generateAction = async (fileName: string, opts: GenerateOptions)=> {
     const services = createSimpleLServices(NodeFileSystem).SimpleL;
     const model = await extractAstNode<Model>(fileName, services);
-    const generatedFilePath = generateCPPfromCCFG(model, fileName, opts.targetDirectory, opts.debug);
-    console.log(chalk.green(`CCFG and C++ Code generated successfully: ${generatedFilePath}`));
+    const generatedFilePath = interpretfromCCFG(model, fileName, opts.targetDirectory);
+    console.log(chalk.green(`CCFG and C++ Code generated successfully:********** ${generatedFilePath}`));
 };
 
 export type GenerateOptions = {
@@ -19,7 +20,7 @@ export type GenerateOptions = {
     debug ?: boolean;
 }
 
-export default function(): void {
+export default function() {
     const program = new Command();
 
     program

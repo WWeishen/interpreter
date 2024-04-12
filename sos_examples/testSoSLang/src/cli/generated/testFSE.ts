@@ -379,7 +379,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         
         previousNode.returnType = "Number"
         previousNode.functionsNames = [`${previousNode.uid}accessVarRef`] //overwrite existing name
-        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let ${getName(node)}1579 = new Number(sigma.get("${getName(node.theVar)}currentValue");//currentValue}`,`${getName(node)}terminates =  ${getName(node)}1579;`,`return ${getName(node)}terminates;`]] //GG
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`let ${getName(node)}1579 = new Number(sigma.get("${getName(node.theVar)}currentValue"));//currentValue}`,`${getName(node)}terminates =  ${getName(node)}1579;`,`return ${getName(node)}terminates;`]] //GG
     
         return [ccfg,startsVarRefNode,terminatesVarRefNode]
     }

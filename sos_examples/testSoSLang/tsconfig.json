@@ -17,7 +17,7 @@
   },
   "include": [
      "src/**/*.ts"
-  ],
+, "src/cli/interpreterJS.ts", "src/cli/index.ts"  ],
   "exclude": [
      "out",
      "node_modules"

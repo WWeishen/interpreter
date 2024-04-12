@@ -31,13 +31,15 @@ void function11initializeVar(){
 	
                 sigma.set("Variable1_0_1_10currentValue", new Number(Variable1_0_1_101376))
 }
-void functioninit13Variable(){
-	sigma.set("Variable2_0_2_10currentValue",new Number());//A1
+Number function16accessVarRef(){
+	let VarRef2_5_2_71579 = new Number(sigma.get("Variable0_0_0_10currentValue"));//currentValue}
+	VarRef2_5_2_7terminates =  VarRef2_5_2_71579;
+	return VarRef2_5_2_7terminates;
 }
-void function15initializeVar(){
-	let Variable2_0_2_101376 = 0; //undefined
-	
-                sigma.set("Variable2_0_2_10currentValue", new Number(Variable2_0_2_101376))
+void function18executeAssignment2(Number resRight){
+	let  Assignment2_0_2_72520 = resRight; // was Assignment2_0_2_72354; but using the parameter name now
+	                                 
+                sigma.set("Variable1_0_1_10currentValue", new Number(Assignment2_0_2_72520))
 }
 
 int main() {
@@ -45,8 +47,8 @@ int main() {
 function7initializeVar();
 functioninit9Variable();
 function11initializeVar();
-functioninit13Variable();
-function15initializeVar();
+Number result16accessVarRef = function16accessVarRef();
+function18executeAssignment2(result16accessVarRef);
 
     //WARNING !! temporary code to test
     for(auto entry : sigma){
