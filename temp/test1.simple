@@ -2,7 +2,10 @@ var v1
 var v2 = 1 
 if (v1)             //if
 {                   //bloc1
-    v2 = v1         //v2Assign2 - v1Ref3
+     while(v1 < 2){
+          v1 = (v1 + 1)
+     }
+     v2 = v1         //v2Assign2 - v1Ref3
 }else               
 {                   //bloc2
     v1 = v2         //v1Assign2 - v2Ref3
