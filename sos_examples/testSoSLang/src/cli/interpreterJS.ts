@@ -109,13 +109,14 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
                 else{
                     return;
                 }
+                break;
             }
-/*
+
             case "Choice":{
                 console.log(node.uid+": ("+ node.getType() + ")->");
-                // have to verify the true edge and false edge
-                var nodeTrue : Node | undefined;
-                var nodeFalse : Node | undefined;
+                // have to verify the true node and false node
+                let nodeTrue : Node | undefined;
+                let nodeFalse : Node | undefined;
                 node.outputEdges.forEach(edge => {
                     let edgeLable = edge.guards;
                     if (edgeLable[0].includes("true")) {
@@ -136,12 +137,15 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
                     }
                     memory.resRight = NaN;
                 } 
+
+                break;
             }
             case "OrJoin":{
                 console.log(node.uid+": ("+ node.getType() + ")->");
                 currentNode = node.outputEdges[0].to;
+                break;
             }
-            //break;*/
+            //break;
         }
         
     }
