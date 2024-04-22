@@ -67,19 +67,23 @@ function doGenerateCCFG(codeFile: CompositeGeneratorNode, model: Model): CCFG {
 }
 
 // browse the ccfg sart with a given node
+
 function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Memory):void{
         var currentNode : Node = initialState;
-        while(currentNode.outputEdges && currentNode.outputEdges[0] && currentNode.outputEdges[0].to){
+        //while|| (currentNode.outputEdges[1] && currentNode.outputEdges[1].to)
+        while(currentNode.outputEdges && ((currentNode.outputEdges[0] && currentNode.outputEdges[0].to) || (currentNode.outputEdges[1] && currentNode.outputEdges[1].to))){
         let node = currentNode;
         switch(node.getType()){
             case "Step":{
+                console.log(node.uid+": ("+ node.getType() + ")->");
                 if(node.functionsDefs.length > 0){
                     stepNode(node,sigma,memory);
                 }
-                currentNode = currentNode.outputEdges[0].to;
+                currentNode = node.outputEdges[0].to;
                 break;
             }
             case "Fork":{//uid=15;
+                console.log(node.uid+": ("+ node.getType() + ")->");
                 let children = currentNode.outputEdges;
                 memory.coupleN1N2.addCouple();
                 memory.fork.push(children.length);
@@ -89,6 +93,7 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
                 //break;
             }
             case "AndJoin":{
+                console.log(node.uid+": ("+ node.getType() + ")->");
                 let forkList : number[] = memory.fork;
                 forkList[forkList.length-1] --;
                 //console.log("#rest of current fork'children"+ forkList[forkList.length-1]);//nombre of the children which are not executed of the current fork
@@ -96,22 +101,47 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
                     forkList.pop();
                     if(node.functionsDefs.length!=0){
                         joinNode(node, sigma, memory);//assg of resRight
-                        currentNode = node.outputEdges[0].to;
                     }
-                    else{
-                        memory.coupleN1N2.reduce();
-                    }
+                    memory.coupleN1N2.reduce();
+                    currentNode = node.outputEdges[0].to;
                     //return ;
                 }
                 else{
                     return;
                 }
             }
-
+/*
             case "Choice":{
-                currentNode = currentNode.outputEdges[0].to;
+                console.log(node.uid+": ("+ node.getType() + ")->");
+                // have to verify the true edge and false edge
+                var nodeTrue : Node | undefined;
+                var nodeFalse : Node | undefined;
+                node.outputEdges.forEach(edge => {
+                    let edgeLable = edge.guards;
+                    if (edgeLable[0].includes("true")) {
+                        nodeTrue = edge.to;
+                    } 
+                    else {
+                        nodeFalse = edge.to;
+                    }
+                }); 
+
+                //get value in memory.resRight :
+                if(nodeTrue && nodeFalse){
+                    if (isNaN(memory.resRight)){//false
+                        currentNode = nodeFalse;//next node is the false node
+                    }
+                    else{
+                        currentNode = nodeTrue;//next node is the true node
+                    }
+                    memory.resRight = NaN;
+                } 
             }
-            //break;
+            case "OrJoin":{
+                console.log(node.uid+": ("+ node.getType() + ")->");
+                currentNode = node.outputEdges[0].to;
+            }
+            //break;*/
         }
         
     }
@@ -151,21 +181,6 @@ function stepNode(node:Node,sigma:Map<string,any>,memory:Memory):void{
                 let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);  
                 let parm = memory.resRight;
                 memory.resRight = NaN;
-                //sigma.delete("resRight");
-                /*
-                if(memory.fork.length==0){//when we aren't in a sub-fork
-                    console.log(f(parm));
-                }
-                else{//when we are in a sub-fork
-                    if(isNaN(memory.coupleN1N2.last().n1)){
-                        memory.coupleN1N2.last().n1 = parm;
-                    }
-                    else{
-                        memory.coupleN1N2.last().n2 = parm;
-                        memory.coupleN1N2.reduce();
-                    }
-                    console.log(f(parm));
-                }*/
                 console.log(f(parm));
             }
 }
@@ -184,7 +199,6 @@ function joinNode(node:Node,sigma:Map<string,any>,memory:Memory):void{
     let parm1 = memory.coupleN1N2.last().n1;
     let parm2 = memory.coupleN1N2.last().n2;
     memory.resRight=f(parm1,parm2);
-    memory.coupleN1N2.reduce();
     //console.log("value resRight:"+memory.resRight);
     return ;
 }
