@@ -207,3 +207,39 @@ open PeriodicBloc{
                     
 
 }
+
+open IntEqual{
+  
+            when starts
+      --------------------------                                startIntEqual
+        <this,σ> ~> <lhs,σ>
+                    <rhs,σ>
+    
+        when (<rhs,σ> -> n2:integer ^ <lhs,σ> -> n1:integer)
+      ----------------------------------------------------------  finishIntEqual
+          <this,σ> ~> terminates[n1 == n2]
+}
+
+open IntLower{
+  
+            when starts
+      --------------------------                                  startIntLess
+        <this,σ> ~> <lhs,σ>
+                    <rhs,σ>
+    
+        when (<rhs,σ> -> n2:integer ^ <lhs,σ> -> n1:integer)
+      ----------------------------------------------------------  finishIntLess
+          <this,σ> ~> terminates[n1 < n2]
+}
+
+open IntGreater{
+  
+            when starts
+      --------------------------                                  startIntGreater
+        <this,σ> ~> <lhs,σ>
+                    <rhs,σ>
+    
+        when (<rhs,σ> -> n2:integer ^ <lhs,σ> -> n1:integer)
+      ----------------------------------------------------------  finishIntGreater
+          <this,σ> ~> terminates[n1 > n2]
+}

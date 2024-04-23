@@ -48,69 +48,96 @@ subgraph cluster_16 {
 label = "While4_0_8_1";
   "17" [label="17:startsWhile4_0_8_1" shape="ellipse" ];
   "18" [label="18:terminatesWhile4_0_8_1" shape="ellipse" ];
-  "22" [label="22:choiceNodeVarRef4_7_4_9" shape="diamond" ];
-  "42" [label="42:orJoinNodeVarRef4_7_4_9" shape="invtriangle" style="filled" fillcolor="lightblue"];
+  "30" [label="30:choiceNodeIntGreater4_7_4_16" shape="diamond" ];
+  "50" [label="50:orJoinNodeIntGreater4_7_4_16" shape="invtriangle" style="filled" fillcolor="lightblue"];
 subgraph cluster_19 {
-label = "VarRef4_7_4_9";
-  "20" [label="20:startsVarRef4_7_4_9:
-int function20accessVarRef(){
-const std::lock_guard<std::mutex> lock(sigma_mutex);
-int VarRef4_7_4_91579 = *(int *) sigma[\"Variable0_0_0_10currentValue\"];//currentValue}
-int VarRef4_7_4_9terminates =  VarRef4_7_4_91579;
-return VarRef4_7_4_9terminates;
-}" shape="ellipse" ];
-  "21" [label="21:terminatesVarRef4_7_4_9" shape="ellipse" ];
-}
+label = "IntGreater4_7_4_16";
+  "20" [label="20:startsIntGreater4_7_4_16" shape="ellipse" ];
+  "21" [label="21:terminatesIntGreater4_7_4_16" shape="ellipse" ];
+  "22" [label="22:startIntGreaterForkNode" shape="triangle" ];
+  "29" [label="29:andJoinNodeVarRef4_13_4_15:
+bool function29finishIntGreater(int n2, int n1){
+int IntGreater4_7_4_166996 = n2;
+int IntGreater4_7_4_167020 = n1;
+int IntGreater4_7_4_167148 = n1; // was IntGreater4_7_4_167020; but using the parameter name now
+int IntGreater4_7_4_167153 = n2; // was IntGreater4_7_4_166996; but using the parameter name now
+bool IntGreater4_7_4_167148 = IntGreater4_7_4_167148 > IntGreater4_7_4_167153;
+bool IntGreater4_7_4_16terminates =  IntGreater4_7_4_167148;
+return IntGreater4_7_4_16terminates;
+}" shape="invtriangle" ];
 subgraph cluster_23 {
+label = "VarRef4_8_4_10";
+  "24" [label="24:startsVarRef4_8_4_10:
+int function24accessVarRef(){
+const std::lock_guard<std::mutex> lock(sigma_mutex);
+int VarRef4_8_4_101579 = *(int *) sigma[\"Variable2_0_2_11currentValue\"];//currentValue}
+int VarRef4_8_4_10terminates =  VarRef4_8_4_101579;
+return VarRef4_8_4_10terminates;
+}" shape="ellipse" ];
+  "25" [label="25:terminatesVarRef4_8_4_10" shape="ellipse" ];
+}
+subgraph cluster_26 {
+label = "VarRef4_13_4_15";
+  "27" [label="27:startsVarRef4_13_4_15:
+int function27accessVarRef(){
+const std::lock_guard<std::mutex> lock(sigma_mutex);
+int VarRef4_13_4_151579 = *(int *) sigma[\"Variable0_0_0_10currentValue\"];//currentValue}
+int VarRef4_13_4_15terminates =  VarRef4_13_4_151579;
+return VarRef4_13_4_15terminates;
+}" shape="ellipse" ];
+  "28" [label="28:terminatesVarRef4_13_4_15" shape="ellipse" ];
+}
+}
+subgraph cluster_31 {
 label = "Bloc5_0_8_1";
-  "24" [label="24:startsBloc5_0_8_1" shape="ellipse" ];
-  "25" [label="25:terminatesBloc5_0_8_1" shape="ellipse" ];
-  "26" [label="26:startsarray6_4_6_11_7_4_7_11" shape="ellipse" ];
-  "41" [label="41:terminatesarray6_4_6_11_7_4_7_11" shape="ellipse" ];
-subgraph cluster_27 {
+  "32" [label="32:startsBloc5_0_8_1" shape="ellipse" ];
+  "33" [label="33:terminatesBloc5_0_8_1" shape="ellipse" ];
+  "34" [label="34:startsarray6_4_6_11_7_4_7_11" shape="ellipse" ];
+  "49" [label="49:terminatesarray6_4_6_11_7_4_7_11" shape="ellipse" ];
+subgraph cluster_35 {
 label = "Assignment6_4_6_11";
-  "28" [label="28:startsAssignment6_4_6_11" shape="ellipse" ];
-  "29" [label="29:terminatesAssignment6_4_6_11" shape="ellipse" ];
-  "33" [label="33:executeAssignment2StateModificationNode:
-void function33executeAssignment2(int resRight){
+  "36" [label="36:startsAssignment6_4_6_11" shape="ellipse" ];
+  "37" [label="37:terminatesAssignment6_4_6_11" shape="ellipse" ];
+  "41" [label="41:executeAssignment2StateModificationNode:
+void function41executeAssignment2(int resRight){
 int Assignment6_4_6_112520 = resRight; // was Assignment6_4_6_112354; but using the parameter name now
 //TODO: fix this and avoid memory leak by deleting, constructing appropriately
                 const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
                 (*((int*)sigma[\"Variable0_0_0_10currentValue\"])) = Assignment6_4_6_112520;
 }" shape="ellipse" ];
-subgraph cluster_30 {
+subgraph cluster_38 {
 label = "VarRef6_9_6_11";
-  "31" [label="31:startsVarRef6_9_6_11:
-int function31accessVarRef(){
+  "39" [label="39:startsVarRef6_9_6_11:
+int function39accessVarRef(){
 const std::lock_guard<std::mutex> lock(sigma_mutex);
 int VarRef6_9_6_111579 = *(int *) sigma[\"Variable1_0_1_10currentValue\"];//currentValue}
 int VarRef6_9_6_11terminates =  VarRef6_9_6_111579;
 return VarRef6_9_6_11terminates;
 }" shape="ellipse" ];
-  "32" [label="32:terminatesVarRef6_9_6_11" shape="ellipse" ];
+  "40" [label="40:terminatesVarRef6_9_6_11" shape="ellipse" ];
 }
 }
-subgraph cluster_34 {
+subgraph cluster_42 {
 label = "Assignment7_4_7_11";
-  "35" [label="35:startsAssignment7_4_7_11" shape="ellipse" ];
-  "36" [label="36:terminatesAssignment7_4_7_11" shape="ellipse" ];
-  "40" [label="40:executeAssignment2StateModificationNode:
-void function40executeAssignment2(int resRight){
+  "43" [label="43:startsAssignment7_4_7_11" shape="ellipse" ];
+  "44" [label="44:terminatesAssignment7_4_7_11" shape="ellipse" ];
+  "48" [label="48:executeAssignment2StateModificationNode:
+void function48executeAssignment2(int resRight){
 int Assignment7_4_7_112520 = resRight; // was Assignment7_4_7_112354; but using the parameter name now
 //TODO: fix this and avoid memory leak by deleting, constructing appropriately
                 const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
                 (*((int*)sigma[\"Variable1_0_1_10currentValue\"])) = Assignment7_4_7_112520;
 }" shape="ellipse" ];
-subgraph cluster_37 {
+subgraph cluster_45 {
 label = "VarRef7_9_7_11";
-  "38" [label="38:startsVarRef7_9_7_11:
-int function38accessVarRef(){
+  "46" [label="46:startsVarRef7_9_7_11:
+int function46accessVarRef(){
 const std::lock_guard<std::mutex> lock(sigma_mutex);
 int VarRef7_9_7_111579 = *(int *) sigma[\"Variable2_0_2_11currentValue\"];//currentValue}
 int VarRef7_9_7_11terminates =  VarRef7_9_7_111579;
 return VarRef7_9_7_11terminates;
 }" shape="ellipse" ];
-  "39" [label="39:terminatesVarRef7_9_7_11" shape="ellipse" ];
+  "47" [label="47:terminatesVarRef7_9_7_11" shape="ellipse" ];
 }
 }
 }
@@ -118,38 +145,45 @@ return VarRef7_9_7_11terminates;
   "1" [label="1:startsModel0_0_8_1" shape="ellipse" ];
   "2" [label="2:terminatesModel0_0_8_1" shape="ellipse" ];
   "3" [label="3:startsarray0_0_0_10_1_0_1_10_2_0_2_11_4_0_8_1" shape="ellipse" ];
-  "43" [label="43:terminatesarray0_0_0_10_1_0_1_10_2_0_2_11_4_0_8_1" shape="ellipse" ];
+  "51" [label="51:terminatesarray0_0_0_10_1_0_1_10_2_0_2_11_4_0_8_1" shape="ellipse" ];
   "5" -> "7" [label=""];
   "7" -> "6" [label=""];
   "9" -> "11" [label=""];
   "11" -> "10" [label=""];
   "13" -> "15" [label=""];
   "15" -> "14" [label=""];
-  "20" -> "21" [label=""];
-  "31" -> "32" [label=""];
-  "28" -> "31" [label=""];
-  "32" -> "33" [label=""];
-  "33" -> "29" [label=""];
-  "38" -> "39" [label=""];
-  "35" -> "38" [label=""];
+  "24" -> "25" [label=""];
+  "27" -> "28" [label=""];
+  "20" -> "22" [label=""];
+  "22" -> "24" [label=""];
+  "22" -> "27" [label=""];
+  "28" -> "29" [label=""];
+  "25" -> "29" [label=""];
+  "29" -> "21" [label=""];
   "39" -> "40" [label=""];
-  "40" -> "36" [label=""];
-  "24" -> "26" [label=""];
-  "26" -> "28" [label=""];
-  "29" -> "35" [label=""];
-  "36" -> "41" [label=""];
-  "41" -> "25" [label=""];
-  "17" -> "42" [label=""];
-  "21" -> "22" [label=""];
-  "22" -> "24" [label="(bool)VarRef4_7_4_9terminates == true"];
-  "25" -> "42" [label=""];
-  "42" -> "20" [label=""];
-  "22" -> "18" [label="(bool)VarRef4_7_4_9terminates == false"];
+  "36" -> "39" [label=""];
+  "40" -> "41" [label=""];
+  "41" -> "37" [label=""];
+  "46" -> "47" [label=""];
+  "43" -> "46" [label=""];
+  "47" -> "48" [label=""];
+  "48" -> "44" [label=""];
+  "32" -> "34" [label=""];
+  "34" -> "36" [label=""];
+  "37" -> "43" [label=""];
+  "44" -> "49" [label=""];
+  "49" -> "33" [label=""];
+  "17" -> "50" [label=""];
+  "21" -> "30" [label=""];
+  "30" -> "32" [label="(bool)IntGreater4_7_4_16terminates == true"];
+  "33" -> "50" [label=""];
+  "50" -> "20" [label=""];
+  "30" -> "18" [label="(bool)IntGreater4_7_4_16terminates == false"];
   "1" -> "3" [label=""];
   "3" -> "5" [label=""];
   "6" -> "9" [label=""];
   "10" -> "13" [label=""];
   "14" -> "17" [label=""];
-  "18" -> "43" [label=""];
-  "43" -> "2" [label=""];
+  "18" -> "51" [label=""];
+  "51" -> "2" [label=""];
 }

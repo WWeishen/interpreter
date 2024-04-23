@@ -24,7 +24,20 @@ Expr:
     VarRef|Plus|If|BooleanExpression;
 
 BooleanExpression:
-    Conjunction | Disjunction | BooleanConst;
+    Conjunction | Disjunction | BooleanConst | IntegerComparison;
+
+IntegerComparison:
+    IntLower | IntGreater | IntEqual;
+
+IntLower:
+    '('lhs=Expr '<' rhs=Expr')';
+
+IntGreater:
+    '('lhs=Expr '>' rhs=Expr')';
+
+IntEqual:
+    '('lhs=Expr '==' rhs=Expr')';
+
 
 BooleanConst:
     value=('true' | 'false');
@@ -37,11 +50,11 @@ Disjunction:
 
 
 While:
-    'while' '('cond=VarRef ')'
+    'while' '('cond=BooleanExpression ')'
     body=Bloc;
 
 If:
-    'if' '('cond=VarRef ')'
+    'if' '('cond=BooleanExpression ')'
     then=Bloc
     ('else' else=Bloc);
 

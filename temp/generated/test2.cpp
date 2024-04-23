@@ -96,25 +96,40 @@ void function50executeAssignment2(int resRight){
                 const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
                 (*((int*)sigma["Variable1_0_1_10currentValue"])) = Assignment5_7_5_212520;
 }
-int function56accessVarRef(){
+int function60accessVarRef(){
 	const std::lock_guard<std::mutex> lock(sigma_mutex);
-	int VarRef7_4_7_61579 = *(int *) sigma["Variable0_0_0_10currentValue"];//currentValue}
-	int VarRef7_4_7_6terminates =  VarRef7_4_7_61579;
-	return VarRef7_4_7_6terminates;
+	int VarRef7_5_7_71579 = *(int *) sigma["Variable0_0_0_10currentValue"];//currentValue}
+	int VarRef7_5_7_7terminates =  VarRef7_5_7_71579;
+	return VarRef7_5_7_7terminates;
 }
-int function71accessVarRef(){
+int function63accessVarRef(){
+	const std::lock_guard<std::mutex> lock(sigma_mutex);
+	int VarRef7_11_7_131579 = *(int *) sigma["Variable2_0_2_10currentValue"];//currentValue}
+	int VarRef7_11_7_13terminates =  VarRef7_11_7_131579;
+	return VarRef7_11_7_13terminates;
+}
+bool function65finishIntEqual(int n2, int n1){
+	int IntEqual7_4_7_146253 = n2;
+	int IntEqual7_4_7_146277 = n1;
+	int IntEqual7_4_7_146403 = n1; // was IntEqual7_4_7_146277; but using the parameter name now
+	int IntEqual7_4_7_146409 = n2; // was IntEqual7_4_7_146253; but using the parameter name now
+	bool IntEqual7_4_7_146403 = IntEqual7_4_7_146403 == IntEqual7_4_7_146409;
+	bool IntEqual7_4_7_14terminates =  IntEqual7_4_7_146403;
+	return IntEqual7_4_7_14terminates;
+}
+int function79accessVarRef(){
 	const std::lock_guard<std::mutex> lock(sigma_mutex);
 	int VarRef9_15_9_171579 = *(int *) sigma["Variable0_0_0_10currentValue"];//currentValue}
 	int VarRef9_15_9_17terminates =  VarRef9_15_9_171579;
 	return VarRef9_15_9_17terminates;
 }
-int function74accessVarRef(){
+int function82accessVarRef(){
 	const std::lock_guard<std::mutex> lock(sigma_mutex);
 	int VarRef9_10_9_121579 = *(int *) sigma["Variable1_0_1_10currentValue"];//currentValue}
 	int VarRef9_10_9_12terminates =  VarRef9_10_9_121579;
 	return VarRef9_10_9_12terminates;
 }
-int function76finishPlus(int n2, int n1){
+int function84finishPlus(int n2, int n1){
 	int Plus9_9_9_184267 = n2;
 	int Plus9_9_9_184292 = n1;
 	int Plus9_9_9_184411 = n1; // was Plus9_9_9_184292; but using the parameter name now
@@ -123,25 +138,25 @@ int function76finishPlus(int n2, int n1){
 	int Plus9_9_9_18terminates =  Plus9_9_9_184410;
 	return Plus9_9_9_18terminates;
 }
-void function77executeAssignment2(int resRight){
+void function85executeAssignment2(int resRight){
 	int Assignment9_4_9_182520 = resRight; // was Assignment9_4_9_182354; but using the parameter name now
 	//TODO: fix this and avoid memory leak by deleting, constructing appropriately
                 const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
                 (*((int*)sigma["Variable1_0_1_10currentValue"])) = Assignment9_4_9_182520;
 }
-int function91accessVarRef(){
+int function99accessVarRef(){
 	const std::lock_guard<std::mutex> lock(sigma_mutex);
 	int VarRef12_15_12_171579 = *(int *) sigma["Variable0_0_0_10currentValue"];//currentValue}
 	int VarRef12_15_12_17terminates =  VarRef12_15_12_171579;
 	return VarRef12_15_12_17terminates;
 }
-int function94accessVarRef(){
+int function102accessVarRef(){
 	const std::lock_guard<std::mutex> lock(sigma_mutex);
 	int VarRef12_10_12_121579 = *(int *) sigma["Variable1_0_1_10currentValue"];//currentValue}
 	int VarRef12_10_12_12terminates =  VarRef12_10_12_121579;
 	return VarRef12_10_12_12terminates;
 }
-int function96finishPlus(int n2, int n1){
+int function104finishPlus(int n2, int n1){
 	int Plus12_9_12_184267 = n2;
 	int Plus12_9_12_184292 = n1;
 	int Plus12_9_12_184411 = n1; // was Plus12_9_12_184292; but using the parameter name now
@@ -150,39 +165,39 @@ int function96finishPlus(int n2, int n1){
 	int Plus12_9_12_18terminates =  Plus12_9_12_184410;
 	return Plus12_9_12_18terminates;
 }
-void function97executeAssignment2(int resRight){
+void function105executeAssignment2(int resRight){
 	int Assignment12_4_12_182520 = resRight; // was Assignment12_4_12_182354; but using the parameter name now
 	//TODO: fix this and avoid memory leak by deleting, constructing appropriately
                 const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
                 (*((int*)sigma["Variable0_0_0_10currentValue"])) = Assignment12_4_12_182520;
 }
-bool function109evalBooleanConst(){
+bool function117evalBooleanConst(){
 	sigma["BooleanConst16_6_16_10constantValue"] = new bool(true);
 	const std::lock_guard<std::mutex> lock(sigma_mutex);
 	bool BooleanConst16_6_16_104630 = *(bool *) sigma["BooleanConst16_6_16_10constantValue"];//constantValue}
 	bool BooleanConst16_6_16_10terminates =  BooleanConst16_6_16_104630;
 	return BooleanConst16_6_16_10terminates;
 }
-bool function112evalBooleanConst(){
+bool function120evalBooleanConst(){
 	sigma["BooleanConst16_14_16_19constantValue"] = new bool(false);
 	const std::lock_guard<std::mutex> lock(sigma_mutex);
 	bool BooleanConst16_14_16_194630 = *(bool *) sigma["BooleanConst16_14_16_19constantValue"];//constantValue}
 	bool BooleanConst16_14_16_19terminates =  BooleanConst16_14_16_194630;
 	return BooleanConst16_14_16_19terminates;
 }
-bool function114evaluateConjunction2(){
+bool function122evaluateConjunction2(){
 	bool Conjunction16_5_16_20terminates =  false;
 	return Conjunction16_5_16_20terminates;
 }
-bool function115evaluateConjunction3(){
+bool function123evaluateConjunction3(){
 	bool Conjunction16_5_16_20terminates =  false;
 	return Conjunction16_5_16_20terminates;
 }
-bool function117evaluateConjunction4(){
+bool function125evaluateConjunction4(){
 	bool Conjunction16_5_16_20terminates =  true;
 	return Conjunction16_5_16_20terminates;
 }
-void function118executeAssignment2(int resRight){
+void function126executeAssignment2(int resRight){
 	int Assignment16_0_16_202520 = resRight; // was Assignment16_0_16_202354; but using the parameter name now
 	//TODO: fix this and avoid memory leak by deleting, constructing appropriately
                 const std::lock_guard<std::mutex> lock(sigma_mutex);                                    
@@ -293,113 +308,144 @@ int result47accessVarRef = function47accessVarRef();
         queue20.waitAndPop(AndJoinPopped_20_1);
             
         //end of and join node
-        int result56accessVarRef = function56accessVarRef();
-
-        LockingQueue<Void> queue99;
-            
-        int VarRef7_4_7_6terminates = result56accessVarRef;//Choice node
-        if((bool)VarRef7_4_7_6terminates == true){
-            LockingQueue<int> queue76;
-            std::thread thread71([&](){
-int result71accessVarRef = function71accessVarRef();
+        
+            LockingQueue<int> queue65;
+            std::thread thread60([&](){
+int result60accessVarRef = function60accessVarRef();
 {
 
-            queue76.push(result71accessVarRef);
+            queue65.push(result60accessVarRef);
                 }
 
             });
-            thread71.detach();
+            thread60.detach();
                 
-            std::thread thread74([&](){
-int result74accessVarRef = function74accessVarRef();
+            std::thread thread63([&](){
+int result63accessVarRef = function63accessVarRef();
 {
 
-            queue76.push(result74accessVarRef);
+            queue65.push(result63accessVarRef);
                 }
 
             });
-            thread74.detach();
+            thread63.detach();
                 
         //start of and join node
         
-        int AndJoinPopped_76_0;
-        queue76.waitAndPop(AndJoinPopped_76_0);
+        int AndJoinPopped_65_0;
+        queue65.waitAndPop(AndJoinPopped_65_0);
             
-        int AndJoinPopped_76_1;
-        queue76.waitAndPop(AndJoinPopped_76_1);
-            int result76finishPlus = function76finishPlus(AndJoinPopped_76_0, AndJoinPopped_76_1);
+        int AndJoinPopped_65_1;
+        queue65.waitAndPop(AndJoinPopped_65_1);
+            bool result65finishIntEqual = function65finishIntEqual(AndJoinPopped_65_0, AndJoinPopped_65_1);
 
         //end of and join node
-        function77executeAssignment2(result76finishPlus);
+        
+        LockingQueue<Void> queue107;
+            
+        bool IntEqual7_4_7_14terminates = n2;//Choice node
+        if((bool)IntEqual7_4_7_14terminates == true){
+            LockingQueue<int> queue84;
+            std::thread thread79([&](){
+int result79accessVarRef = function79accessVarRef();
 {
 
-            Void fakeParam99;
-            queue99.push(fakeParam99);
+            queue84.push(result79accessVarRef);
                 }
 
-            //END IF (bool)VarRef7_4_7_6terminates == true
+            });
+            thread79.detach();
+                
+            std::thread thread82([&](){
+int result82accessVarRef = function82accessVarRef();
+{
+
+            queue84.push(result82accessVarRef);
+                }
+
+            });
+            thread82.detach();
+                
+        //start of and join node
+        
+        int AndJoinPopped_84_0;
+        queue84.waitAndPop(AndJoinPopped_84_0);
+            
+        int AndJoinPopped_84_1;
+        queue84.waitAndPop(AndJoinPopped_84_1);
+            int result84finishPlus = function84finishPlus(AndJoinPopped_84_0, AndJoinPopped_84_1);
+
+        //end of and join node
+        function85executeAssignment2(result84finishPlus);
+{
+
+            Void fakeParam107;
+            queue107.push(fakeParam107);
+                }
+
+            //END IF (bool)IntEqual7_4_7_14terminates == true
         }
             //Choice node
-        if((bool)VarRef7_4_7_6terminates == false){
-            LockingQueue<int> queue96;
-            std::thread thread91([&](){
-int result91accessVarRef = function91accessVarRef();
+        if((bool)IntEqual7_4_7_14terminates == false){
+            LockingQueue<int> queue104;
+            std::thread thread99([&](){
+int result99accessVarRef = function99accessVarRef();
 {
 
-            queue96.push(result91accessVarRef);
+            queue104.push(result99accessVarRef);
                 }
 
             });
-            thread91.detach();
+            thread99.detach();
                 
-            std::thread thread94([&](){
-int result94accessVarRef = function94accessVarRef();
+            std::thread thread102([&](){
+int result102accessVarRef = function102accessVarRef();
 {
 
-            queue96.push(result94accessVarRef);
+            queue104.push(result102accessVarRef);
                 }
 
             });
-            thread94.detach();
+            thread102.detach();
                 
         //start of and join node
         
-        int AndJoinPopped_96_0;
-        queue96.waitAndPop(AndJoinPopped_96_0);
+        int AndJoinPopped_104_0;
+        queue104.waitAndPop(AndJoinPopped_104_0);
             
-        int AndJoinPopped_96_1;
-        queue96.waitAndPop(AndJoinPopped_96_1);
-            int result96finishPlus = function96finishPlus(AndJoinPopped_96_0, AndJoinPopped_96_1);
+        int AndJoinPopped_104_1;
+        queue104.waitAndPop(AndJoinPopped_104_1);
+            int result104finishPlus = function104finishPlus(AndJoinPopped_104_0, AndJoinPopped_104_1);
 
         //end of and join node
-        function97executeAssignment2(result96finishPlus);
+        function105executeAssignment2(result104finishPlus);
 {
 
-            Void fakeParam99;
-            queue99.push(fakeParam99);
+            Void fakeParam107;
+            queue107.push(fakeParam107);
                 }
 
-            //END IF (bool)VarRef7_4_7_6terminates == false
+            //END IF (bool)IntEqual7_4_7_14terminates == false
         }
              //or join node
-        Void OrJoinPopped_99;
-        queue99.waitAndPop(OrJoinPopped_99);
+        Void OrJoinPopped_107;
+        queue107.waitAndPop(OrJoinPopped_107);
         
-            LockingQueue<bool> queue106;
-            LockingQueue<bool> queue116;
-            std::thread thread109([&](){
-bool result109evalBooleanConst = function109evalBooleanConst();
+            LockingQueue<bool> queue114;
+            LockingQueue<bool> queue124;
+            std::thread thread117([&](){
+bool result117evalBooleanConst = function117evalBooleanConst();
 {
 
-            queue116.push(result109evalBooleanConst);
+            queue124.push(result117evalBooleanConst);
                 }
 
                 {
-        bool BooleanConst16_6_16_10terminates = result109evalBooleanConst;//Choice node
-        if((bool)BooleanConst16_6_16_10terminates == false){bool result114evaluateConjunction2 = function114evaluateConjunction2();
+        bool BooleanConst16_6_16_10terminates = result117evalBooleanConst;//Choice node
+        if((bool)BooleanConst16_6_16_10terminates == false){bool result122evaluateConjunction2 = function122evaluateConjunction2();
 {
 
-            queue106.push(result114evaluateConjunction2);
+            queue114.push(result122evaluateConjunction2);
                 }
 
             //END IF (bool)BooleanConst16_6_16_10terminates == false
@@ -411,21 +457,21 @@ bool result109evalBooleanConst = function109evalBooleanConst();
                 }
                 
             });
-            thread109.detach();
+            thread117.detach();
                 
-            std::thread thread112([&](){
-bool result112evalBooleanConst = function112evalBooleanConst();
+            std::thread thread120([&](){
+bool result120evalBooleanConst = function120evalBooleanConst();
 {
 
-            queue116.push(result112evalBooleanConst);
+            queue124.push(result120evalBooleanConst);
                 }
 
                 {
-        bool BooleanConst16_14_16_19terminates = result112evalBooleanConst;//Choice node
-        if((bool)BooleanConst16_14_16_19terminates == false){bool result115evaluateConjunction3 = function115evaluateConjunction3();
+        bool BooleanConst16_14_16_19terminates = result120evalBooleanConst;//Choice node
+        if((bool)BooleanConst16_14_16_19terminates == false){bool result123evaluateConjunction3 = function123evaluateConjunction3();
 {
 
-            queue106.push(result115evaluateConjunction3);
+            queue114.push(result123evaluateConjunction3);
                 }
 
             //END IF (bool)BooleanConst16_14_16_19terminates == false
@@ -437,32 +483,32 @@ bool result112evalBooleanConst = function112evalBooleanConst();
                 }
                 
             });
-            thread112.detach();
+            thread120.detach();
                 
         //start of and join node
         
-        bool AndJoinPopped_116_0;
-        queue116.waitAndPop(AndJoinPopped_116_0);
+        bool AndJoinPopped_124_0;
+        queue124.waitAndPop(AndJoinPopped_124_0);
             
-        bool AndJoinPopped_116_1;
-        queue116.waitAndPop(AndJoinPopped_116_1);
+        bool AndJoinPopped_124_1;
+        queue124.waitAndPop(AndJoinPopped_124_1);
             
         //end of and join node
         
-        bool BooleanConst16_6_16_10terminates = AndJoinPopped_116_0;
-        bool BooleanConst16_14_16_19terminates = AndJoinPopped_116_1;//Choice node
-        if((bool)BooleanConst16_6_16_10terminates == true && (bool)BooleanConst16_14_16_19terminates == true){bool result117evaluateConjunction4 = function117evaluateConjunction4();
+        bool BooleanConst16_6_16_10terminates = AndJoinPopped_124_0;
+        bool BooleanConst16_14_16_19terminates = AndJoinPopped_124_1;//Choice node
+        if((bool)BooleanConst16_6_16_10terminates == true && (bool)BooleanConst16_14_16_19terminates == true){bool result125evaluateConjunction4 = function125evaluateConjunction4();
 {
 
-            queue106.push(result117evaluateConjunction4);
+            queue114.push(result125evaluateConjunction4);
                 }
 
             //END IF (bool)BooleanConst16_6_16_10terminates == true && (bool)BooleanConst16_14_16_19terminates == true
         }
              //or join node
-        bool OrJoinPopped_106;
-        queue106.waitAndPop(OrJoinPopped_106);
-        function118executeAssignment2(OrJoinPopped_106);
+        bool OrJoinPopped_114;
+        queue114.waitAndPop(OrJoinPopped_114);
+        function126executeAssignment2(OrJoinPopped_114);
 
     //WARNING !! temporary code to test
     for(auto entry : sigma){

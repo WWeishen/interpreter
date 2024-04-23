@@ -5,7 +5,7 @@ var v3 = 0          //v3Decl
      | v2 = (v1 + v1)//v1Assign1 - firstPlus -v1Ref1 - v1Ref2
      | v2 = (v2 + v2)  //v2Assign1 - secondPlus -v2Ref1 - v2Ref2
      |
-if (v1)             //if
+if ((v1 == v3))             //if
 {                   //bloc1
     v2 = (v2 + v1)         //v2Assign2 - v1Ref3
 }else               

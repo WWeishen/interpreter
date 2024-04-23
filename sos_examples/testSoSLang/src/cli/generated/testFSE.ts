@@ -17,7 +17,7 @@ import { AndJoin, Choice, Fork, CCFG, Node, OrJoin, Step, ContainerNode, TypedEl
             return "noName"+globalUnNamedCounter++
         }
     }
-    import { Model,Bloc,ParallelBloc,Variable,VarRef,If,Assignment,Conjunction,Plus,BooleanConst,While,PeriodicBloc } from "../../language-server/generated/ast";
+    import { Model,Bloc,ParallelBloc,Variable,VarRef,If,Assignment,Conjunction,Plus,BooleanConst,While,PeriodicBloc,IntEqual,IntLower,IntGreater } from "../../language-server/generated/ast";
 
 export interface SimpleLVisitor {
     visit(node: AstNode): [Node,Node,Node];
@@ -35,6 +35,9 @@ export interface SimpleLVisitor {
      visitBooleanConst(node: BooleanConst): [Node, Node,Node];
      visitWhile(node: While): [Node, Node,Node];
      visitPeriodicBloc(node: PeriodicBloc): [Node, Node,Node];
+     visitIntEqual(node: IntEqual): [Node, Node,Node];
+     visitIntLower(node: IntLower): [Node, Node,Node];
+     visitIntGreater(node: IntGreater): [Node, Node,Node];
 }
 
 
@@ -89,6 +92,15 @@ export class CCFGVisitor implements SimpleLVisitor {
         }
         if(node.$type == "PeriodicBloc"){
             return this.visitPeriodicBloc(node as PeriodicBloc);
+        }
+        if(node.$type == "IntEqual"){
+            return this.visitIntEqual(node as IntEqual);
+        }
+        if(node.$type == "IntLower"){
+            return this.visitIntLower(node as IntLower);
+        }
+        if(node.$type == "IntGreater"){
+            return this.visitIntGreater(node as IntGreater);
         }
         throw new Error("Not implemented: " + node.$type);
     }
@@ -399,12 +411,12 @@ export class CCFGVisitor implements SimpleLVisitor {
         ccfg.addNode(terminatesIfNode)
         // rule condStart
    //premise: starts:event
-   //conclusion: cond:VarRef,starts:event
+   //conclusion: cond:BooleanExpression,starts:event
 // rule condTrueStart
-   //premise: cond:VarRef,terminates:event
+   //premise: cond:BooleanExpression,terminates:event
    //conclusion: then:Bloc,starts:event
 // rule condFalseStart
-   //premise: cond:VarRef,terminates:event
+   //premise: cond:BooleanExpression,terminates:event
    //conclusion: else:Bloc,starts:event
 // rule condStop
    //premise: else:Bloc,terminates:event,then:Bloc,terminates:event
@@ -1028,15 +1040,15 @@ export class CCFGVisitor implements SimpleLVisitor {
         ccfg.addNode(terminatesWhileNode)
         // rule whileStart
    //premise: starts:event
-   //conclusion: cond:VarRef,starts:event
+   //conclusion: cond:BooleanExpression,starts:event
 // rule whileBodyStart
-   //premise: cond:VarRef,terminates:event
+   //premise: cond:BooleanExpression,terminates:event
    //conclusion: body:Bloc,starts:event
 // rule whileBodyEnd
    //premise: body:Bloc,terminates:event
-   //conclusion: cond:VarRef,starts:event
+   //conclusion: cond:BooleanExpression,starts:event
 // rule whileEnd
-   //premise: cond:VarRef,terminates:event
+   //premise: cond:BooleanExpression,terminates:event
    //conclusion: terminates:unknown
 
         let previousNode =undefined
@@ -1376,6 +1388,264 @@ export class CCFGVisitor implements SimpleLVisitor {
         previousNode.functionsDefs =[...previousNode.functionsDefs, ...[]] //GG
     
         return [ccfg,startsPeriodicBlocNode,terminatesPeriodicBlocNode]
+    }
+
+    visitIntEqual(node: IntEqual): [Node,Node,Node] {
+        let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
+
+
+        let startsIntEqualNode: Node = new Step("starts"+getASTNodeUID(node),[])
+        if(startsIntEqualNode.functionsDefs.length>0){
+            startsIntEqualNode.returnType = "void"
+        }
+        startsIntEqualNode.functionsNames = [`init${startsIntEqualNode.uid}IntEqual`]
+        ccfg.addNode(startsIntEqualNode)
+        let terminatesIntEqualNode: Node = new Step("terminates"+getASTNodeUID(node))
+        ccfg.addNode(terminatesIntEqualNode)
+        // rule startIntEqual
+   //premise: starts:event
+   //conclusion: lhs:Expr,starts:event
+   //conclusion: lhs:Expr,starts:event,rhs:Expr,starts:event
+// rule finishIntEqual
+   //premise: rhs:Expr,terminates:event,lhs:Expr,terminates:event
+   //conclusion: terminates:event
+
+        let previousNode =undefined
+        
+    {
+        let startsgetASTNodeUID_node_startIntEqual = ccfg.getNodeFromName("starts"+getASTNodeUID(node))
+        if(startsgetASTNodeUID_node_startIntEqual == undefined){
+            throw new Error("impossible to be there startsgetASTNodeUID_node_startIntEqual")
+        }
+        previousNode = startsgetASTNodeUID_node_startIntEqual
+    }
+    
+        let startIntEqualForkNode: Node = new Fork("startIntEqualForkNode")
+        ccfg.addNode(startIntEqualForkNode)
+        {let e = ccfg.addEdge(previousNode,startIntEqualForkNode)
+        e.guards = [...e.guards, ...[]] //BB
+        }
+        
+        let [lhsCCFG, lhsStartNode/*,lhsTerminatesNode*/] = this.visit(node.lhs)
+        ccfg.addNode(lhsCCFG)
+        ccfg.addEdge(startIntEqualForkNode,lhsStartNode)
+        
+        let [rhsCCFG, rhsStartNode/*,rhsTerminatesNode*/] = this.visit(node.rhs)
+        ccfg.addNode(rhsCCFG)
+        ccfg.addEdge(startIntEqualForkNode,rhsStartNode)
+        
+        previousNode.returnType = "void"
+        previousNode.functionsNames = [`${previousNode.uid}startIntEqual`] //overwrite existing name
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[]] //GG
+    
+    let finishIntEqualAndJoinNode: Node = new AndJoin("andJoinNode"+getASTNodeUID(node.rhs))
+    ccfg.addNode(finishIntEqualAndJoinNode)
+    let rhsTerminatesNodefinishIntEqual = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.rhs))
+    let lhsTerminatesNodefinishIntEqual = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.lhs))
+    if(rhsTerminatesNodefinishIntEqual == undefined || lhsTerminatesNodefinishIntEqual == undefined){
+        throw new Error("impossible to be there rhsTerminatesNodefinishIntEqual lhsTerminatesNodefinishIntEqual")
+    }
+    ccfg.addEdge(rhsTerminatesNodefinishIntEqual,finishIntEqualAndJoinNode)
+    ccfg.addEdge(lhsTerminatesNodefinishIntEqual,finishIntEqualAndJoinNode)
+            
+    {
+        let multipleSynchroNode = ccfg.getNodeFromName("andJoinNode"+getASTNodeUID(node.rhs))
+        if(multipleSynchroNode == undefined){
+            throw new Error("impossible to be there andJoinNode"+getASTNodeUID(node.rhs))
+        }
+        multipleSynchroNode.params = [...multipleSynchroNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "n2", "type": "int"}`)),Object.assign( new TypedElement(), JSON.parse(`{ "name": "n1", "type": "int"}`))]]
+        multipleSynchroNode.functionsDefs = [...multipleSynchroNode.functionsDefs, ...[`int ${getName(node)}6253 = n2;`,`int ${getName(node)}6277 = n1;`]] //HH
+    }
+    
+    {
+        let andJoinNodegetASTNodeUID_node_rhs_finishIntEqual = ccfg.getNodeFromName("andJoinNode"+getASTNodeUID(node.rhs))
+        if(andJoinNodegetASTNodeUID_node_rhs_finishIntEqual == undefined){
+            throw new Error("impossible to be there andJoinNodegetASTNodeUID_node_rhs_finishIntEqual")
+        }
+        previousNode = andJoinNodegetASTNodeUID_node_rhs_finishIntEqual
+    }
+    
+        {let e = ccfg.addEdge(previousNode,terminatesIntEqualNode)
+        e.guards = [...e.guards, ...[]] //EE
+        }
+        
+        previousNode.returnType = "bool"
+        previousNode.functionsNames = [`${previousNode.uid}finishIntEqual`] //overwrite existing name
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`int ${getName(node)}6403 = n1; // was ${getName(node)}6277; but using the parameter name now`,`int ${getName(node)}6409 = n2; // was ${getName(node)}6253; but using the parameter name now`,`bool ${getName(node)}6403 = ${getName(node)}6403 == ${getName(node)}6409;`,`bool ${getName(node)}terminates =  ${getName(node)}6403;`,`return ${getName(node)}terminates;`]] //GG
+    
+        return [ccfg,startsIntEqualNode,terminatesIntEqualNode]
+    }
+
+    visitIntLower(node: IntLower): [Node,Node,Node] {
+        let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
+
+
+        let startsIntLowerNode: Node = new Step("starts"+getASTNodeUID(node),[])
+        if(startsIntLowerNode.functionsDefs.length>0){
+            startsIntLowerNode.returnType = "void"
+        }
+        startsIntLowerNode.functionsNames = [`init${startsIntLowerNode.uid}IntLower`]
+        ccfg.addNode(startsIntLowerNode)
+        let terminatesIntLowerNode: Node = new Step("terminates"+getASTNodeUID(node))
+        ccfg.addNode(terminatesIntLowerNode)
+        // rule startIntLess
+   //premise: starts:event
+   //conclusion: lhs:Expr,starts:event
+   //conclusion: lhs:Expr,starts:event,rhs:Expr,starts:event
+// rule finishIntLess
+   //premise: rhs:Expr,terminates:event,lhs:Expr,terminates:event
+   //conclusion: terminates:event
+
+        let previousNode =undefined
+        
+    {
+        let startsgetASTNodeUID_node_startIntLess = ccfg.getNodeFromName("starts"+getASTNodeUID(node))
+        if(startsgetASTNodeUID_node_startIntLess == undefined){
+            throw new Error("impossible to be there startsgetASTNodeUID_node_startIntLess")
+        }
+        previousNode = startsgetASTNodeUID_node_startIntLess
+    }
+    
+        let startIntLessForkNode: Node = new Fork("startIntLessForkNode")
+        ccfg.addNode(startIntLessForkNode)
+        {let e = ccfg.addEdge(previousNode,startIntLessForkNode)
+        e.guards = [...e.guards, ...[]] //BB
+        }
+        
+        let [lhsCCFG, lhsStartNode/*,lhsTerminatesNode*/] = this.visit(node.lhs)
+        ccfg.addNode(lhsCCFG)
+        ccfg.addEdge(startIntLessForkNode,lhsStartNode)
+        
+        let [rhsCCFG, rhsStartNode/*,rhsTerminatesNode*/] = this.visit(node.rhs)
+        ccfg.addNode(rhsCCFG)
+        ccfg.addEdge(startIntLessForkNode,rhsStartNode)
+        
+        previousNode.returnType = "void"
+        previousNode.functionsNames = [`${previousNode.uid}startIntLess`] //overwrite existing name
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[]] //GG
+    
+    let finishIntLessAndJoinNode: Node = new AndJoin("andJoinNode"+getASTNodeUID(node.rhs))
+    ccfg.addNode(finishIntLessAndJoinNode)
+    let rhsTerminatesNodefinishIntLess = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.rhs))
+    let lhsTerminatesNodefinishIntLess = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.lhs))
+    if(rhsTerminatesNodefinishIntLess == undefined || lhsTerminatesNodefinishIntLess == undefined){
+        throw new Error("impossible to be there rhsTerminatesNodefinishIntLess lhsTerminatesNodefinishIntLess")
+    }
+    ccfg.addEdge(rhsTerminatesNodefinishIntLess,finishIntLessAndJoinNode)
+    ccfg.addEdge(lhsTerminatesNodefinishIntLess,finishIntLessAndJoinNode)
+            
+    {
+        let multipleSynchroNode = ccfg.getNodeFromName("andJoinNode"+getASTNodeUID(node.rhs))
+        if(multipleSynchroNode == undefined){
+            throw new Error("impossible to be there andJoinNode"+getASTNodeUID(node.rhs))
+        }
+        multipleSynchroNode.params = [...multipleSynchroNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "n2", "type": "int"}`)),Object.assign( new TypedElement(), JSON.parse(`{ "name": "n1", "type": "int"}`))]]
+        multipleSynchroNode.functionsDefs = [...multipleSynchroNode.functionsDefs, ...[`int ${getName(node)}6623 = n2;`,`int ${getName(node)}6647 = n1;`]] //HH
+    }
+    
+    {
+        let andJoinNodegetASTNodeUID_node_rhs_finishIntLess = ccfg.getNodeFromName("andJoinNode"+getASTNodeUID(node.rhs))
+        if(andJoinNodegetASTNodeUID_node_rhs_finishIntLess == undefined){
+            throw new Error("impossible to be there andJoinNodegetASTNodeUID_node_rhs_finishIntLess")
+        }
+        previousNode = andJoinNodegetASTNodeUID_node_rhs_finishIntLess
+    }
+    
+        {let e = ccfg.addEdge(previousNode,terminatesIntLowerNode)
+        e.guards = [...e.guards, ...[]] //EE
+        }
+        
+        previousNode.returnType = "bool"
+        previousNode.functionsNames = [`${previousNode.uid}finishIntLess`] //overwrite existing name
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`int ${getName(node)}6772 = n1; // was ${getName(node)}6647; but using the parameter name now`,`int ${getName(node)}6777 = n2; // was ${getName(node)}6623; but using the parameter name now`,`bool ${getName(node)}6772 = ${getName(node)}6772 < ${getName(node)}6777;`,`bool ${getName(node)}terminates =  ${getName(node)}6772;`,`return ${getName(node)}terminates;`]] //GG
+    
+        return [ccfg,startsIntLowerNode,terminatesIntLowerNode]
+    }
+
+    visitIntGreater(node: IntGreater): [Node,Node,Node] {
+        let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
+
+
+        let startsIntGreaterNode: Node = new Step("starts"+getASTNodeUID(node),[])
+        if(startsIntGreaterNode.functionsDefs.length>0){
+            startsIntGreaterNode.returnType = "void"
+        }
+        startsIntGreaterNode.functionsNames = [`init${startsIntGreaterNode.uid}IntGreater`]
+        ccfg.addNode(startsIntGreaterNode)
+        let terminatesIntGreaterNode: Node = new Step("terminates"+getASTNodeUID(node))
+        ccfg.addNode(terminatesIntGreaterNode)
+        // rule startIntGreater
+   //premise: starts:event
+   //conclusion: lhs:Expr,starts:event
+   //conclusion: lhs:Expr,starts:event,rhs:Expr,starts:event
+// rule finishIntGreater
+   //premise: rhs:Expr,terminates:event,lhs:Expr,terminates:event
+   //conclusion: terminates:event
+
+        let previousNode =undefined
+        
+    {
+        let startsgetASTNodeUID_node_startIntGreater = ccfg.getNodeFromName("starts"+getASTNodeUID(node))
+        if(startsgetASTNodeUID_node_startIntGreater == undefined){
+            throw new Error("impossible to be there startsgetASTNodeUID_node_startIntGreater")
+        }
+        previousNode = startsgetASTNodeUID_node_startIntGreater
+    }
+    
+        let startIntGreaterForkNode: Node = new Fork("startIntGreaterForkNode")
+        ccfg.addNode(startIntGreaterForkNode)
+        {let e = ccfg.addEdge(previousNode,startIntGreaterForkNode)
+        e.guards = [...e.guards, ...[]] //BB
+        }
+        
+        let [lhsCCFG, lhsStartNode/*,lhsTerminatesNode*/] = this.visit(node.lhs)
+        ccfg.addNode(lhsCCFG)
+        ccfg.addEdge(startIntGreaterForkNode,lhsStartNode)
+        
+        let [rhsCCFG, rhsStartNode/*,rhsTerminatesNode*/] = this.visit(node.rhs)
+        ccfg.addNode(rhsCCFG)
+        ccfg.addEdge(startIntGreaterForkNode,rhsStartNode)
+        
+        previousNode.returnType = "void"
+        previousNode.functionsNames = [`${previousNode.uid}startIntGreater`] //overwrite existing name
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[]] //GG
+    
+    let finishIntGreaterAndJoinNode: Node = new AndJoin("andJoinNode"+getASTNodeUID(node.rhs))
+    ccfg.addNode(finishIntGreaterAndJoinNode)
+    let rhsTerminatesNodefinishIntGreater = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.rhs))
+    let lhsTerminatesNodefinishIntGreater = ccfg.getNodeFromName("terminates"+getASTNodeUID(node.lhs))
+    if(rhsTerminatesNodefinishIntGreater == undefined || lhsTerminatesNodefinishIntGreater == undefined){
+        throw new Error("impossible to be there rhsTerminatesNodefinishIntGreater lhsTerminatesNodefinishIntGreater")
+    }
+    ccfg.addEdge(rhsTerminatesNodefinishIntGreater,finishIntGreaterAndJoinNode)
+    ccfg.addEdge(lhsTerminatesNodefinishIntGreater,finishIntGreaterAndJoinNode)
+            
+    {
+        let multipleSynchroNode = ccfg.getNodeFromName("andJoinNode"+getASTNodeUID(node.rhs))
+        if(multipleSynchroNode == undefined){
+            throw new Error("impossible to be there andJoinNode"+getASTNodeUID(node.rhs))
+        }
+        multipleSynchroNode.params = [...multipleSynchroNode.params, ...[Object.assign( new TypedElement(), JSON.parse(`{ "name": "n2", "type": "int"}`)),Object.assign( new TypedElement(), JSON.parse(`{ "name": "n1", "type": "int"}`))]]
+        multipleSynchroNode.functionsDefs = [...multipleSynchroNode.functionsDefs, ...[`int ${getName(node)}6996 = n2;`,`int ${getName(node)}7020 = n1;`]] //HH
+    }
+    
+    {
+        let andJoinNodegetASTNodeUID_node_rhs_finishIntGreater = ccfg.getNodeFromName("andJoinNode"+getASTNodeUID(node.rhs))
+        if(andJoinNodegetASTNodeUID_node_rhs_finishIntGreater == undefined){
+            throw new Error("impossible to be there andJoinNodegetASTNodeUID_node_rhs_finishIntGreater")
+        }
+        previousNode = andJoinNodegetASTNodeUID_node_rhs_finishIntGreater
+    }
+    
+        {let e = ccfg.addEdge(previousNode,terminatesIntGreaterNode)
+        e.guards = [...e.guards, ...[]] //EE
+        }
+        
+        previousNode.returnType = "bool"
+        previousNode.functionsNames = [`${previousNode.uid}finishIntGreater`] //overwrite existing name
+        previousNode.functionsDefs =[...previousNode.functionsDefs, ...[`int ${getName(node)}7148 = n1; // was ${getName(node)}7020; but using the parameter name now`,`int ${getName(node)}7153 = n2; // was ${getName(node)}6996; but using the parameter name now`,`bool ${getName(node)}7148 = ${getName(node)}7148 > ${getName(node)}7153;`,`bool ${getName(node)}terminates =  ${getName(node)}7148;`,`return ${getName(node)}terminates;`]] //GG
+    
+        return [ccfg,startsIntGreaterNode,terminatesIntGreaterNode]
     }
 
 }
