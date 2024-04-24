@@ -1,0 +1,18 @@
+var v1 = 1
+var v2 = 4
+var v3 = 2
+if (v1)             //if
+{                   //bloc1
+     if(v3){
+          |               //parBloc1
+          | v1 = (v1 + v3)//v1Assign1 - firstPlus -v1Ref1 - v1Ref2
+          | v1 = (v1 + v3)  //v2Assign1 - secondPlus -v2Ref1 - v2Ref2
+          | v1 = (v1 + v3)  //v2Assign1 - secondPlus -v2Ref1 - v2Ref2
+          |
+     }else{
+          v2 = v1         //v2Assign2 - v1Ref3
+     }
+}else               
+{                   //bloc2
+    v1 = v2         //v1Assign2 - v2Ref3
+}

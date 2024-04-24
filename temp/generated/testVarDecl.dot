@@ -49,45 +49,45 @@ return VarRef2_5_2_7terminates;
 }
 }
 subgraph cluster_19 {
-label = "Assignment3_0_3_14";
-  "20" [label="20:startsAssignment3_0_3_14" shape="ellipse" ];
-  "21" [label="21:terminatesAssignment3_0_3_14" shape="ellipse" ];
+label = "Assignment3_0_3_12";
+  "20" [label="20:startsAssignment3_0_3_12" shape="ellipse" ];
+  "21" [label="21:terminatesAssignment3_0_3_12" shape="ellipse" ];
   "33" [label="33:executeAssignment2StateModificationNode:
 void function33executeAssignment2(Number resRight){
-let  Assignment3_0_3_142520 = resRight; // was Assignment3_0_3_142354; but using the parameter name now
+let  Assignment3_0_3_122520 = resRight; // was Assignment3_0_3_122354; but using the parameter name now
                                  
-                sigma.set(\"Variable0_0_0_10currentValue\", new Number(Assignment3_0_3_142520))
+                sigma.set(\"Variable1_0_1_10currentValue\", new Number(Assignment3_0_3_122520))
 }" shape="ellipse" ];
 subgraph cluster_22 {
-label = "Plus3_5_3_14";
-  "23" [label="23:startsPlus3_5_3_14" shape="ellipse" ];
-  "24" [label="24:terminatesPlus3_5_3_14" shape="ellipse" ];
+label = "Plus3_5_3_12";
+  "23" [label="23:startsPlus3_5_3_12" shape="ellipse" ];
+  "24" [label="24:terminatesPlus3_5_3_12" shape="ellipse" ];
   "25" [label="25:startPlusForkNode" shape="triangle" ];
-  "32" [label="32:andJoinNodeVarRef3_11_3_13:
+  "32" [label="32:andJoinNodeVarRef3_9_3_11:
 Number function32finishPlus(Number n2, Number n1){
-Plus3_5_3_144267 = n2;
-Plus3_5_3_144292 = n1;
-let  Plus3_5_3_144411 = n1; // was Plus3_5_3_144292; but using the parameter name now
-let  Plus3_5_3_144416 = n2; // was Plus3_5_3_144267; but using the parameter name now
-Plus3_5_3_144410 = Plus3_5_3_144411 + Plus3_5_3_144416;
-Plus3_5_3_14terminates =  Plus3_5_3_144410;
-return Plus3_5_3_14terminates;
+Plus3_5_3_124267 = n2;
+Plus3_5_3_124292 = n1;
+let  Plus3_5_3_124411 = n1; // was Plus3_5_3_124292; but using the parameter name now
+let  Plus3_5_3_124416 = n2; // was Plus3_5_3_124267; but using the parameter name now
+Plus3_5_3_124410 = Plus3_5_3_124411 + Plus3_5_3_124416;
+Plus3_5_3_12terminates =  Plus3_5_3_124410;
+return Plus3_5_3_12terminates;
 }" shape="invtriangle" ];
 subgraph cluster_26 {
-label = "VarRef3_11_3_13";
-  "27" [label="27:startsVarRef3_11_3_13:
+label = "VarRef3_9_3_11";
+  "27" [label="27:startsVarRef3_9_3_11:
 Number function27accessVarRef(){
-let VarRef3_11_3_131579 = new Number(sigma.get(\"Variable1_0_1_10currentValue\"));//currentValue}
-VarRef3_11_3_13terminates =  VarRef3_11_3_131579;
-return VarRef3_11_3_13terminates;
+let VarRef3_9_3_111579 = new Number(sigma.get(\"Variable0_0_0_10currentValue\"));//currentValue}
+VarRef3_9_3_11terminates =  VarRef3_9_3_111579;
+return VarRef3_9_3_11terminates;
 }" shape="ellipse" ];
-  "28" [label="28:terminatesVarRef3_11_3_13" shape="ellipse" ];
+  "28" [label="28:terminatesVarRef3_9_3_11" shape="ellipse" ];
 }
 subgraph cluster_29 {
 label = "VarRef3_6_3_8";
   "30" [label="30:startsVarRef3_6_3_8:
 Number function30accessVarRef(){
-let VarRef3_6_3_81579 = new Number(sigma.get(\"Variable1_0_1_10currentValue\"));//currentValue}
+let VarRef3_6_3_81579 = new Number(sigma.get(\"Variable0_0_0_10currentValue\"));//currentValue}
 VarRef3_6_3_8terminates =  VarRef3_6_3_81579;
 return VarRef3_6_3_8terminates;
 }" shape="ellipse" ];
@@ -95,10 +95,10 @@ return VarRef3_6_3_8terminates;
 }
 }
 }
-  "1" [label="1:startsModel0_0_3_14" shape="ellipse" ];
-  "2" [label="2:terminatesModel0_0_3_14" shape="ellipse" ];
-  "3" [label="3:startsarray0_0_0_10_1_0_1_10_2_0_2_7_3_0_3_14" shape="ellipse" ];
-  "34" [label="34:terminatesarray0_0_0_10_1_0_1_10_2_0_2_7_3_0_3_14" shape="ellipse" ];
+  "1" [label="1:startsModel0_0_3_12" shape="ellipse" ];
+  "2" [label="2:terminatesModel0_0_3_12" shape="ellipse" ];
+  "3" [label="3:startsarray0_0_0_10_1_0_1_10_2_0_2_7_3_0_3_12" shape="ellipse" ];
+  "34" [label="34:terminatesarray0_0_0_10_1_0_1_10_2_0_2_7_3_0_3_12" shape="ellipse" ];
   "5" -> "7" [label=""];
   "7" -> "6" [label=""];
   "9" -> "11" [label=""];
