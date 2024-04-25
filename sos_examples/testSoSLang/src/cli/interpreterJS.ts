@@ -107,25 +107,50 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
                 let nodeTrue : Node | undefined;
                 let nodeFalse : Node | undefined;
                 node.outputEdges.forEach(edge => {
-                    let edgeLable = edge.guards;
-                    if (edgeLable[0].includes("true")) {
+                    //get resRight
+                    let resRight: number = memory.resRight[0];
+                    //get code from: "(VarRef3_4_3_6terminates == true)"
+                    let edgeLable: string = edge.guards[0];
+                    let match = edgeLable.match(/\((.*?)\)/);    //"VarRef3_4_3_6terminates == true"
+                    let code: string| null = match ? match[1] : null;
+                    let varName: string | null = null;
+                    //get variable name
+                    if (code) {
+                        let parts = code.split('==');
+                        if (parts[0]){
+                            //var varName : string = parts[0].trim();
+                            varName = parts[0].trim();
+                        }
+                    }//                                                 let ${varName} = ${resRight};\n
+                    let bool : boolean = eval(`
+                                                if(${resRight} > 0){
+                                                    ${varName} = 1;\n
+                                                }else{
+                                                    ${varName} = 0;\n
+                                                }\n
+                                              ${code};
+                    `)
+                    if (bool) {
                         nodeTrue = edge.to;
                     } 
                     else {
                         nodeFalse = edge.to;
                     }
-                }); 
-
+                });
                 //get value in memory.resRight :
                 if(nodeTrue && nodeFalse){
-                    if (isNaN(memory.resRight[0])){//false
-                        currentNode = nodeFalse;//next node is the false node
+                    if (memory.resRight[0]){//false
+                        currentNode = nodeTrue;//next node is the false node
                     }
                     else {
-                        currentNode = nodeTrue;//next node is the true node
+                        currentNode = nodeFalse;//next node is the true node
                     }
                     memory.resRight.pop();
-                } 
+                }
+                else{
+                    console.log("trueNode | flaseNode doesn't existe at node.uid ="+ node.uid);
+                    return;
+                }
                 break;
             }
             case "OrJoin":{

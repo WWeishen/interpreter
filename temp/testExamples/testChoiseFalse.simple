@@ -1,5 +1,5 @@
-var v1              //v1Decl
-var v2 = 1          //v2Decl
+var v1 = 0          //v1Decl
+var v2 = 4          //v2Decl
 if (v1)             //if
 {                   //bloc1
     v2 = v1         //v2Assign2 - v1Ref3

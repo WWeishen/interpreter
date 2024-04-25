@@ -1,16 +1,16 @@
 digraph G {
 subgraph cluster_4 {
-label = "Variable0_0_0_6";
-  "5" [label="5:startsVariable0_0_0_6:
+label = "Variable0_0_0_10";
+  "5" [label="5:startsVariable0_0_0_10:
 void functioninit5Variable(){
-sigma.set(\"Variable0_0_0_6currentValue\",new Number());//A1
+sigma.set(\"Variable0_0_0_10currentValue\",new Number());//A1
 }" shape="ellipse" ];
-  "6" [label="6:terminatesVariable0_0_0_6" shape="ellipse" ];
+  "6" [label="6:terminatesVariable0_0_0_10" shape="ellipse" ];
   "7" [label="7:initializeVarStateModificationNode:
 void function7initializeVar(){
-let Variable0_0_0_61376 = undefined; //undefined
+let Variable0_0_0_101376 = 0; //undefined
 
-                sigma.set(\"Variable0_0_0_6currentValue\", new Number(Variable0_0_0_61376))
+                sigma.set(\"Variable0_0_0_10currentValue\", new Number(Variable0_0_0_101376))
 }" shape="ellipse" ];
 }
 subgraph cluster_8 {
@@ -22,7 +22,7 @@ sigma.set(\"Variable1_0_1_10currentValue\",new Number());//A1
   "10" [label="10:terminatesVariable1_0_1_10" shape="ellipse" ];
   "11" [label="11:initializeVarStateModificationNode:
 void function11initializeVar(){
-let Variable1_0_1_101376 = 1; //undefined
+let Variable1_0_1_101376 = 4; //undefined
 
                 sigma.set(\"Variable1_0_1_10currentValue\", new Number(Variable1_0_1_101376))
 }" shape="ellipse" ];
@@ -37,7 +37,7 @@ subgraph cluster_15 {
 label = "VarRef2_4_2_6";
   "16" [label="16:startsVarRef2_4_2_6:
 Number function16accessVarRef(){
-let VarRef2_4_2_61579 = new Number(sigma.get(\"Variable0_0_0_6currentValue\"));//currentValue}
+let VarRef2_4_2_61579 = new Number(sigma.get(\"Variable0_0_0_10currentValue\"));//currentValue}
 VarRef2_4_2_6terminates =  VarRef2_4_2_61579;
 return VarRef2_4_2_6terminates;
 }" shape="ellipse" ];
@@ -63,7 +63,7 @@ subgraph cluster_26 {
 label = "VarRef4_9_4_11";
   "27" [label="27:startsVarRef4_9_4_11:
 Number function27accessVarRef(){
-let VarRef4_9_4_111579 = new Number(sigma.get(\"Variable0_0_0_6currentValue\"));//currentValue}
+let VarRef4_9_4_111579 = new Number(sigma.get(\"Variable0_0_0_10currentValue\"));//currentValue}
 VarRef4_9_4_11terminates =  VarRef4_9_4_111579;
 return VarRef4_9_4_11terminates;
 }" shape="ellipse" ];
@@ -85,7 +85,7 @@ label = "Assignment7_4_7_11";
 void function41executeAssignment2(Number resRight){
 let  Assignment7_4_7_112520 = resRight; // was Assignment7_4_7_112354; but using the parameter name now
                                  
-                sigma.set(\"Variable0_0_0_6currentValue\", new Number(Assignment7_4_7_112520))
+                sigma.set(\"Variable0_0_0_10currentValue\", new Number(Assignment7_4_7_112520))
 }" shape="ellipse" ];
 subgraph cluster_38 {
 label = "VarRef7_9_7_11";
@@ -102,8 +102,8 @@ return VarRef7_9_7_11terminates;
 }
   "1" [label="1:startsModel0_0_8_1" shape="ellipse" ];
   "2" [label="2:terminatesModel0_0_8_1" shape="ellipse" ];
-  "3" [label="3:startsarray0_0_0_6_1_0_1_10_2_0_8_1" shape="ellipse" ];
-  "44" [label="44:terminatesarray0_0_0_6_1_0_1_10_2_0_8_1" shape="ellipse" ];
+  "3" [label="3:startsarray0_0_0_10_1_0_1_10_2_0_8_1" shape="ellipse" ];
+  "44" [label="44:terminatesarray0_0_0_10_1_0_1_10_2_0_8_1" shape="ellipse" ];
   "5" -> "7" [label=""];
   "7" -> "6" [label=""];
   "9" -> "11" [label=""];
