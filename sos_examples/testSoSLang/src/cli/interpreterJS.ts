@@ -4,7 +4,7 @@ import path from 'path';
 import { Model } from '../language-server/generated/ast';
 import { extractDestinationAndName } from './cli-util';
 import { CCFGVisitor } from './generated/testFSE';
-import { CCFG, ContainerNode, Node, TypedElement } from '../ccfg/ccfglib';
+import { CCFG, ContainerNode, Edge, Node, TypedElement } from '../ccfg/ccfglib';
 import { TempValueList } from './TempValueList';
 //import chalk from 'chalk';
 
@@ -75,24 +75,23 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
             case "Fork":{
                 console.log(node.uid+": ("+ node.getType() + ")->");
                 let children = currentNode.outputEdges;
-                memory.tempValueList.addTempValue(children.length);
-                memory.fork.push(children.length);
+                memory.tempValueList.addTempValue(children.length);//reserve places in memory
+                memory.fork.push(children.length);                 // get in the fork
                 //console.log("the length of the current fork:"+ forkList[forkList.length-1]); //nombre of the children which are not executed of the current fork
                 forkNode(currentNode,sigma,memory);// visit children nodes
                 return;
-                //break;
             }
             case "AndJoin":{
                 console.log(node.uid+": ("+ node.getType() + ")->");
                 let forkList : number[] = memory.fork;
                 forkList[forkList.length-1] --;
                 //console.log("#rest of current fork'children"+ forkList[forkList.length-1]);//nombre of the children which are not executed of the current fork
-                if(forkList[forkList.length-1]==0 ){
-                    forkList.pop();
+                if(forkList[forkList.length-1]==0 ){ //have visited all children of the current fork
+                    forkList.pop();                  //get out of the current fork
                     if(node.functionsDefs.length!=0){
                         joinNode(node, sigma, memory);//assg of resRight
                     }
-                    memory.tempValueList.reduce();
+                    memory.tempValueList.reduce(); //clean memory
                     currentNode = node.outputEdges[0].to;
                 }
                 else{
@@ -103,33 +102,13 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
 
             case "Choice":{
                 console.log(node.uid+": ("+ node.getType() + ")->");
-                // have to verify the true node and false node
                 let nodeTrue : Node | undefined;
                 let nodeFalse : Node | undefined;
+                //get resRight
+                let resRight: number = memory.resRight[memory.resRight.length-1];
+                //evaluation of each edge of choice
                 node.outputEdges.forEach(edge => {
-                    //get resRight
-                    let resRight: number = memory.resRight[0];
-                    //get code from: "(VarRef3_4_3_6terminates == true)"
-                    let edgeLable: string = edge.guards[0];
-                    let match = edgeLable.match(/\((.*?)\)/);    //"VarRef3_4_3_6terminates == true"
-                    let code: string| null = match ? match[1] : null;
-                    let varName: string | null = null;
-                    //get variable name
-                    if (code) {
-                        let parts = code.split('==');
-                        if (parts[0]){
-                            //var varName : string = parts[0].trim();
-                            varName = parts[0].trim();
-                        }
-                    }//                                                 let ${varName} = ${resRight};\n
-                    let bool : boolean = eval(`
-                                                if(${resRight} > 0){
-                                                    ${varName} = 1;\n
-                                                }else{
-                                                    ${varName} = 0;\n
-                                                }\n
-                                              ${code};
-                    `)
+                    let bool: boolean = evaluateEdgeLable(edge,resRight);
                     if (bool) {
                         nodeTrue = edge.to;
                     } 
@@ -137,9 +116,9 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
                         nodeFalse = edge.to;
                     }
                 });
-                //get value in memory.resRight :
+                //decide what is the next node accroding to the value of resRight
                 if(nodeTrue && nodeFalse){
-                    if (memory.resRight[0]){//false
+                    if (memory.resRight[memory.resRight.length-1]){//if resRight
                         currentNode = nodeTrue;//next node is the false node
                     }
                     else {
@@ -163,13 +142,7 @@ function visitAllNodes(initialState : Node , sigma: Map<string, any>, memory: Me
 }
 
 //evaluate the functions that are in the nodes
-/*
-function defineFunction(functionName :string ,functionParamList : TypedElement[] ,functionBody:string[], sigma: Map<any, any>): (...args: any[]) => any {
-    let params = functionParamList.map(item => item.name);
-    return new Function('sigma',...params,`return function  ${functionName} (${params}) {\n
-        ${functionBody.join('\n')}
-        \n}`)(sigma);
-}*/
+//define function; the defined function takes sigma and a list of number as parametre.
 function defineFunction(functionName: string, functionParamList: TypedElement[], functionBody: string[], sigma: Map<any, any>): (...args: any[]) => any {
     return new Function('sigma', 'liste', `return function ${functionName}(liste) {
         ${functionParamList.reverse().map((param, index) => `let ${param.name} = liste[${index}];\n`).join('')}
@@ -180,29 +153,28 @@ function defineFunction(functionName: string, functionParamList: TypedElement[],
 //Node type
 function stepNode(node:Node,sigma:Map<string,any>,memory:Memory):void{
     let functionName="function" + node.functionsNames[0];
-            if(node.returnType!= "void"){
+            if(node.returnType!= "void"){//store the Temp Value 
                 let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);
                 let tempValueL = memory.tempValueList;
                 if(memory.fork.length ==0 || memory.fork[memory.fork.length-1]==0){//when we are not in a fork
-                    console.log(functionName + "return " + f());
+                    console.log(functionName + " return " + f());
                     memory.resRight.push(f());
                 }
                 else if((tempValueL.length!=0) && (!tempValueL.isWating())){//when we are in a fork, all the children are executed
-                    console.log(functionName + "return " + f());
+                    console.log(functionName + " return " + f());
                     memory.resRight.push(f());
                 }
                 
                 else{//when we are in the children of a fork
-                    console.log(functionName + "return " + f());
-                    //tempValueL.last
+                    console.log(functionName + " return " + f());
                     tempValueL.addValueLast(f());
                 }
             }
             else{
                 let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);  
-                let parm = memory.resRight;
+                let parm = memory.resRight;//get value from memory
                 console.log(f(parm));
-                memory.resRight.pop();
+                memory.resRight.pop();//clean memory
             }
 }
 
@@ -216,24 +188,32 @@ function forkNode(currentNode:Node,sigma:Map<string,any>,memory:Memory): void{
 
 function joinNode(node:Node,sigma:Map<string,any>,memory:Memory):void{
     let functionName="function" + node.functionsNames[0];
-    let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);  
+    let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);
     let l = memory.tempValueList.last().list;
     memory.resRight.push(f(l));
-
-    /*let n = l.list.length;
-    let param = new Map<string,number>();
-    for(let i=0;i<n;i++){
-        let key:string = "n" + i+1;
-        param.set(key,l.list[n]);
-    }
-    
-        
-        let parm1 = memory.tempValueList.last().last();
-        memory.tempValueList.last().list.pop();
-        let parm2 = memory.tempValueList.last().last();
-    console.log(functionName + "return " + f(parm1,parm2));
-    memory.resRight=f(parm1,parm2);*/
-
-    //console.log("value resRight:"+memory.resRight);
     return ;
+}
+
+function evaluateEdgeLable(edge : Edge, resRight:number):boolean{
+    //get code from: "(VarRef3_4_3_6terminates == true)"
+    let edgeLable: string = edge.guards[0];
+    let match = edgeLable.match(/\((.*?)\)/);    //"VarRef3_4_3_6terminates == true"
+    let code: string| null = match ? match[1] : null;
+    let varName: string | null = null;
+    //get variable name "VarRef3_4_3_6terminates"
+    if (code) {
+        let parts = code.split('==');
+        if (parts[0]){
+            varName = parts[0].trim();
+        }
+    }
+    let bool : boolean = eval(`
+        if(${resRight} > 0){
+        ${varName} = 1;\n
+        }else{
+            ${varName} = 0;\n
+        }\n
+        ${code};
+        `)
+    return bool;
 }
