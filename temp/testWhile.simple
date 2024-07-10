@@ -2,8 +2,8 @@ var v1 = 1
 var v2 = 0   
 var v3 = 42    
 
-while (v2)
+while (v1)
 {                   
-    v1 = v2
-    v2 = v3    
+    v1 = v3
+    v3 = v2    
 }

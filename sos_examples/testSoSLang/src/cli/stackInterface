@@ -1,0 +1,71 @@
+interface stackInterface<dataType> {
+   push(dataItem: dataType): void;
+   pop(): dataType | null | undefined;
+   peek(): dataType | null;
+   isEmpty(): boolean;
+   isFull(): boolean;
+   size(): number;
+   printStack(): void;
+}
+
+export class TempValue {
+    list : number[];
+    length : number;
+
+    constructor(n:number) {
+        this.list = [];
+        this.length = n;
+    }
+
+    last():number{
+        let n = this.list.length;
+        return this.list[n-1];
+    }
+}
+
+class TempValueList<TempValue> implements stackInterface<TempValue> {
+    private list: TempValue[];
+    private stackSize: number = 0;
+ 
+    constructor() {
+        this.list = [];
+        this.stackSize = this.list.length;
+    }
+ 
+    push(dataItem: TempValue): void {
+        if (this.list.length === this.stackSize) {
+            throw Error(
+                "You can't add more elements to stack as stack storage is full!"
+            );
+        }
+        this.list.push(dataItem);
+    }
+ 
+    pop(): TempValue | null | undefined {
+       let element = this.list.pop();
+       return element;
+    }
+ 
+    peek(): TempValue | null {
+       let element = this.list[this.size() - 1];
+       return element;
+    }
+    isEmpty(): boolean {
+       let result = this.list.length <= 0;
+       return result;
+    }
+    isFull(): boolean {
+       let result = this.list.length >= this.stackSize;
+       return result;
+    }
+    size(): number {
+       let len = this.list.length;
+       return len;
+    }
+    printStack(): void {
+       console.log("All stack values are printed below!");
+       this.list.forEach((dataItem) => {
+          console.log(dataItem);
+       });
+    }
+ }

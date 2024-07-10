@@ -1237,7 +1237,7 @@ export class CCFGVisitor implements SimpleLVisitor {
         let ccfg: ContainerNode = new ContainerNode(getASTNodeUID(node))
 
 
-        let startsPeriodicBlocNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}blocTrigger",new Number(${node.time});//A1`])
+        let startsPeriodicBlocNode: Node = new Step("starts"+getASTNodeUID(node),[`sigma.set("${getName(node)}blocTrigger",new Number(${node.time}));//A1`])
         if(startsPeriodicBlocNode.functionsDefs.length>0){
             startsPeriodicBlocNode.returnType = "void"
         }
@@ -1276,7 +1276,17 @@ export class CCFGVisitor implements SimpleLVisitor {
             ccfg.addNode( blocTriggerStartsNodeperiodicStart)
             blocTriggerStartsNodeperiodicStart.functionsNames = [`starts${blocTriggerStartsNodeperiodicStart.uid}blocTrigger`]
             blocTriggerStartsNodeperiodicStart.returnType = "void"
-            blocTriggerStartsNodeperiodicStart.functionsDefs = [...blocTriggerStartsNodeperiodicStart.functionsDefs, ...[`std::this_thread::sleep_for(${node.time}ms);`]] //GGG
+
+            //blocTriggerStartsNodeperiodicStart.functionsDefs = [...blocTriggerStartsNodeperiodicStart.functionsDefs, ...[`std::this_thread::sleep_for(${node.time}ms);`]] //GGG
+            blocTriggerStartsNodeperiodicStart.functionsDefs = [...blocTriggerStartsNodeperiodicStart.functionsDefs,...[
+                `
+                const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+                async function wait(time) {
+                    await sleep(time);
+                }
+                wait(${node.time});
+                `]]
+
             blocTriggerTerminatesNodeperiodicStart = new Step("terminatesblocTrigger"+getASTNodeUID(node))
             ccfg.addNode(blocTriggerTerminatesNodeperiodicStart)
     
