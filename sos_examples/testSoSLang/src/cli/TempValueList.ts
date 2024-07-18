@@ -61,4 +61,17 @@ export class TempValueList<DataType>{
             return false;
         }
     }
+
+    public clone():any {
+        var cloneObj = this.constructor();
+        for (var attribut in this) {
+            if(typeof this[attribut] === "object"){
+               cloneObj[attribut] = this.clone();
+            } else {
+               cloneObj[attribut] = this[attribut];
+            }
+        }
+        return cloneObj;
+    }
 }
+

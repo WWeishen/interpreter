@@ -71,6 +71,9 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
     var currentNode : Node = initialState;
     while(currentNode.outputEdges && ((currentNode.outputEdges[0] && currentNode.outputEdges[0].to) || (currentNode.outputEdges[1] && currentNode.outputEdges[1].to))){
         let node = currentNode;
+        if(node.uid == 17){
+            console.log("hihi");
+        }
         switch(node.getType()){
             case "Step":{
                 console.log(node.uid + ": (" + node.getType() + ")->");
@@ -80,7 +83,11 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                         stack.fork.pop();                  //get out of the current fork
                     }
                     else{
-                        return;
+                        if(node.cycles.length!=0){
+                            currentNode = node.outputEdges[0].to;
+                        }else{
+                            return;
+                        }   
                     }
                 }
                 if(node.functionsDefs.length > 0){
@@ -101,8 +108,8 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                 currentNode.outputEdges.forEach(element => {
                     let nextNode = element.to; 
                     visitAllNodes(nextNode,sigma,stack);
+                    //reduce fork param??????????????????????????????????
                 });
-                
                 return;
             }
             case "AndJoin":{//reduce (fork children) & call function difined which are store in the stack
@@ -110,7 +117,6 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                 let forkList : number[] = stack.fork;
                 forkList[forkList.length-1] --;
                 if(forkList[forkList.length-1]==0 ){//have visited all children of the current fork
-                    //stack.fork.pop();                           //get out of the current fork
                     let promiseList = stack.tempPromiseFunction;
                     defineAsyncFunction(promiseList);           //call promiseList 
                     if(node.functionsDefs.length!=0){
@@ -119,6 +125,7 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                     stack.tempPromiseFunction.reduce();
                     stack.tempValueList.reduce();
                 }
+
                 currentNode = node.outputEdges[0].to; 
                 break;
             }
@@ -156,12 +163,18 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
             }
             case "OrJoin":{
                 console.log(node.uid + ": (" + node.getType() + ")->");
-                if(node.cycles.length!=0){
-                    
+                let promiseList = stack.tempPromiseFunction;
+                if(node.cycles.length!=0 && promiseList.getLength()!=0){
                     //let cycle = node.cycles;
-                    //let begin = cycle[0];// begin.uid = 39
-                    //let end = cycle[cycle.length-1];//end.uid = 18
+                    //let next = cycle[0][1];// begin.uid = 39
+                    //visitAllNodes(next,sigma,stack);
+                    //let end = cycle[cycle.length-1];//end.uid = 18*/
+                    defineAsyncFunction(promiseList);           //call promiseList 
+                    stack.tempPromiseFunction.reduce();
+                    stack.tempValueList.reduce();
 
+                    stack.tempPromiseFunction.addTempValue(stack.fork[stack.fork.length-1]);
+                    stack.tempValueList.addTempValue(stack.fork[stack.fork.length-1]);
                 }
                 currentNode = node.outputEdges[0].to;
                 break;
