@@ -16,8 +16,8 @@ export class TempValue<DataType> {
 }
 
 export class TempValueList<DataType>{
-    protected list : TempValue<DataType>[]
-    protected length : number
+    protected list : TempValue<DataType>[];
+    protected length : number;
 
     constructor(){
         this.list = [];
@@ -61,17 +61,32 @@ export class TempValueList<DataType>{
             return false;
         }
     }
-
-    public clone():any {
-        var cloneObj = this.constructor();
-        for (var attribut in this) {
-            if(typeof this[attribut] === "object"){
-               cloneObj[attribut] = this.clone();
-            } else {
-               cloneObj[attribut] = this[attribut];
-            }
-        }
-        return cloneObj;
-    }
 }
 
+
+type NestedArray<T> = T | NestedArray<T>[];
+
+
+export class StackTempList<T> {
+  private items: NestedArray<T>[] = [];
+
+  push(element: NestedArray<T>): void {
+    this.items.push(element);
+  }
+
+  pop(): NestedArray<T> | undefined {
+    return this.items.pop();
+  }
+
+  peek(): NestedArray<T> | undefined {
+    return this.items[this.items.length - 1];
+  }
+
+  isEmpty(): boolean {
+    return this.items.length === 0;
+  }
+
+  size(): number {
+    return this.items.length;
+  }
+}

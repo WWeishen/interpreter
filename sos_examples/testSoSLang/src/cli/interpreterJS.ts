@@ -4,26 +4,28 @@ import path from 'path';
 import { Model } from '../language-server/generated/ast';
 import { extractDestinationAndName } from './cli-util';
 import { CCFGVisitor } from './generated/testFSE';
-import { CCFG, ContainerNode, Edge, Node, TypedElement } from '../ccfg/ccfglib';
-import { TempValueList } from './TempValueList';
+import { CCFG, ContainerNode,/* Edge,*/ Node, TypedElement } from '../ccfg/ccfglib';
+import {  TempValueList/*,TempValue,StackTempList*/ } from './TempValueList';
 //import chalk from 'chalk';
 
 class Stack {
     fork: number[];                             //number of the fork children
-    resRight : number[];                        //value outside of a fork
-    forkName : number[];                        //node uid
+    //resRight : number[];                        //value outside of a fork
+    forkNode : Node[];                        //node uid
     tempValueList : TempValueList<number>;      //value inside of a fork
     tempPromiseFunction :  TempValueList<(()=>Promise<void>)>;
-    tempCycle : TempValueList<number>; //node.uid
+    tempChildren : Node[];          //node.uid
+    tempFunction : TempValueList<(...args: any[]) => any>;
     
 
     constructor() {
         this.fork = [];
-        this.forkName = [];
-        this.resRight = [];
+        this.forkNode = [];
+        //this.resRight = [];
         this.tempValueList = new TempValueList<number>();
         this.tempPromiseFunction = new TempValueList<(()=>Promise<void>)>;
-        this.tempCycle = new TempValueList<number>;
+        this.tempChildren = [];
+        this.tempFunction = new TempValueList<(...args: any[]) => any>;
     }
 }
 
@@ -38,7 +40,7 @@ export async function interpretfromCCFG(model: Model, filePath: string, targetDi
     const sigma: Map<string, any> = new Map<string, any>();
     const stack= new Stack();
     if(ccfg.initialState){
-        await visitAllNodes(ccfg.initialState,sigma,stack);
+        visitAllNodes(ccfg.initialState,sigma,stack);
     } 
     console.log(sigma);
     console.log(stack);
@@ -71,64 +73,79 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
     var currentNode : Node = initialState;
     while(currentNode.outputEdges && ((currentNode.outputEdges[0] && currentNode.outputEdges[0].to) || (currentNode.outputEdges[1] && currentNode.outputEdges[1].to))){
         let node = currentNode;
-        if(node.uid == 17){
+        if(node.uid == 27){
             console.log("hihi");
         }
         switch(node.getType()){
             case "Step":{
                 console.log(node.uid + ": (" + node.getType() + ")->");
-                if((node.uid == stack.forkName[stack.forkName.length - 1 ] -1 )){//end fork node
-                    if(stack.fork[stack.fork.length-1]==0){//have visited all children of the current fork
-                        stack.forkName.pop();                //get out of the current fork
-                        stack.fork.pop();                  //get out of the current fork
-                    }
-                    else{
-                        if(node.cycles.length!=0){
-                            currentNode = node.outputEdges[0].to;
-                        }else{
-                            return;
-                        }   
-                    }
-                }
                 if(node.functionsDefs.length > 0){
-                    nodeCode(node,sigma,stack);
+                    nodeCode(node,sigma,stack);//define function written in node; call function & store function value
                 }
                 currentNode = node.outputEdges[0].to;
+                if((stack.forkNode.length!=0) && (node.uid == stack.forkNode[stack.forkNode.length-1].uid -1)){ //the end point of a fork
+                    stack.tempChildren.pop();
+                    if(stack.tempChildren.length > 0){//check if we are in a fork node
+                        // go back to fork node
+                        currentNode = stack.forkNode[stack.forkNode.length-1];
+                        /*await visitAllNodes(stack.forkNode[stack.forkNode.length-1],sigma,stack).then(function(){
+                            return;
+                        });*/
+                    }else{//check if we have visited all children of the current fork
+                        stack.forkNode.pop();                       //if yes, get out of the current fork
+                        stack.fork.pop();
+                    }
+                }
+                /*
+                else{
+                    if(node.cycles.length!=0){
+                        currentNode = node.outputEdges[0].to;
+                    }
+                }
+                */
                 break;
             }
             case "Fork":{//define forks' children
                 console.log(node.uid + ": (" + node.getType() + ")->");
-                let children = currentNode.outputEdges;
-                stack.tempValueList.addTempValue(children.length);         //reserve places in stack : value
-                stack.tempPromiseFunction.addTempValue(children.length);   //reserve places in stack : Promise
-                stack.fork.push(children.length);                          //get in the fork
-                stack.forkName.push(node.uid);                               //start node's uid
+                
                 //console.log("the length of the current fork:"+ forkList[forkList.length-1]); //nombre of the children which are not executed of the current fork
-                //forkNode(currentNode,sigma,stack);  // visit children nodes
-                currentNode.outputEdges.forEach(element => {
-                    let nextNode = element.to; 
-                    visitAllNodes(nextNode,sigma,stack);
-                    //reduce fork param??????????????????????????????????
-                });
-                return;
+                let forklist = stack.forkNode;
+                if( forklist[forklist.length-1] == undefined || stack.forkNode[forklist.length-1].uid != node.uid ){ //the 1st time to visit this fork node
+                    let children = currentNode.outputEdges;
+                    stack.tempValueList.addTempValue(children.length);         //reserve places in stack : value
+                    stack.tempPromiseFunction.addTempValue(children.length);   //reserve places in stack : Promise
+                    stack.tempFunction.addTempValue(children.length);          //reserve places in stack : Function
+                    stack.fork.push(children.length);                          //get in the fork
+                    stack.forkNode.push(node);                                 //start node's uid    
+                    children.forEach(element => {                               //copy chidren list
+                        let nextNode = element.to; 
+                        stack.tempChildren.push(nextNode);
+                    });
+                }
+
+                //visit children (sub-tree)
+                if(stack.tempChildren.length != 0){
+                    /*let nextNode = stack.tempChildren[stack.tempChildren.length-1];
+                    await visitAllNodes(nextNode,sigma,stack).then(function(){
+                        //stack.tempChildren.pop();
+                        return;
+                    });*/
+                    currentNode = stack.tempChildren[stack.tempChildren.length-1];
+                }else{
+                    return;
+                }
+
+                break;
             }
             case "AndJoin":{//reduce (fork children) & call function difined which are store in the stack
                 console.log(node.uid + ": (" + node.getType() + ")->");
-                let forkList : number[] = stack.fork;
-                forkList[forkList.length-1] --;
-                if(forkList[forkList.length-1]==0 ){//have visited all children of the current fork
-                    let promiseList = stack.tempPromiseFunction;
-                    defineAsyncFunction(promiseList);           //call promiseList 
-                    if(node.functionsDefs.length!=0){
-                        nodeCode(node,sigma,stack);
-                    }
-                    stack.tempPromiseFunction.reduce();
-                    stack.tempValueList.reduce();
-                }
-
-                currentNode = node.outputEdges[0].to; 
+                await handleJoinNode(stack,node,sigma).then(function(){
+                    currentNode = node.outputEdges[0].to;
+                });
                 break;
             }
+            
+            /*
             case "Choice":{
                 console.log(node.uid + ": (" + node.getType() + ")->");
                 let nodeTrue : Node | undefined;
@@ -161,6 +178,7 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                 }
                 break;
             }
+
             case "OrJoin":{
                 console.log(node.uid + ": (" + node.getType() + ")->");
                 let promiseList = stack.tempPromiseFunction;
@@ -168,7 +186,7 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                     //let cycle = node.cycles;
                     //let next = cycle[0][1];// begin.uid = 39
                     //visitAllNodes(next,sigma,stack);
-                    //let end = cycle[cycle.length-1];//end.uid = 18*/
+                    //let end = cycle[cycle.length-1];//end.uid = 18
                     defineAsyncFunction(promiseList);           //call promiseList 
                     stack.tempPromiseFunction.reduce();
                     stack.tempValueList.reduce();
@@ -178,8 +196,9 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                 }
                 currentNode = node.outputEdges[0].to;
                 break;
-            }
+            }*/
         }
+
     }
     console.log(sigma);
 }
@@ -193,6 +212,7 @@ function defineFunction(functionName: string, functionParamList: TypedElement[],
         \n}`)(sigma);
 }
 
+/*
 //define a async function for Fork (return type is not void): add value in stack
 function definePromise(stack : Stack , f: (param:number[]) => any , parm : number[] ): () => Promise<void>{
     return () => new Promise<void>((resolve) => {
@@ -214,72 +234,107 @@ function definePromiseVoid( f: (param:number[]) => void , parm : number[]): () =
     });
 }
 
+
 //lancer/call Promise obj(s) which are stored in a tempValueList
-async function defineAsyncFunction(functionList: TempValueList<(()=>Promise<void>)>) {
+function defineAsyncFunction(functionList: TempValueList<(()=>Promise<void>)>) {
     let promiseList = functionList.last().list;
     console.log( promiseList.length + " Promise objects raised");
-    await Promise.all(promiseList.map(promiseFn => promiseFn()));
-    //return Promise.all(promiseList.map(promiseFn => promiseFn()));
+    //await Promise.all(promiseList.map(promiseFn => promiseFn()));
+    return Promise.all(promiseList.map(promiseFn => promiseFn()));
 }
+*/   
+
 
 //code: define function; decide where we store the value & how to call the functions : depends on (if node in a fork/ node is a joinNode)  
-function nodeCode(node:Node,sigma:Map<string,any>,stack:Stack):void{
+/*function nodeCode(node:Node,sigma:Map<string,any>,stack:Stack):void{
     let functionName="function" + node.functionsNames[0];
     let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);
             if(node.returnType!= "void"){//store the Temp Value 
                 let tempValueL = stack.tempPromiseFunction;
-                if((stack.fork.length ==0) ){//when we are not in a fork   // && (stack.fork[stack.fork.length-1]==0)
+                if((stack.fork.length == 0) ){//when we are not in a fork   // && (stack.fork[stack.fork.length-1]==0)
                     console.log(functionName + " return " + f());
-                    stack.resRight.push(f());
+                    if(node.params.length < 1){
+                        //stack.resRight.push(f());
+                        stack.tempValueList.addTempValue(1);
+                        stack.tempValueList.addValueLast(f());
+                    }else{
+                        console.log(f());
+                    }
                 }
-                else if((tempValueL.getLength()!=0) && (!tempValueL.isWaiting())){//when we are in a fork, all the children are executed
+                else if((node.getType() == "AndJoin") && (tempValueL.getLength()!=0) && (!tempValueL.isWaiting())){//when we are in a fork, all the children are executed
                     joinNode(node,sigma,stack);
                 }
-                
                 else{//when we are in the children of a fork
-                    let promise = definePromise(stack,f,[]);
-                    tempValueL.addValueLast(promise);
+                    //let promise = definePromise(stack,f,[]);
+                    //tempValueL.addValueLast(promise);
+                    stack.tempFunction.addValueLast(f);
                 }
             }
             else{//return type is void
                 let tempValueL = stack.tempPromiseFunction;
                 if((stack.fork.length ==0) || (stack.fork[stack.fork.length-1]==0)){//when we are not in a fork
-                    let parm = stack.resRight;//get value list from stack
+                    let parm = stack.tempValueList.last();//get value list from stack
                     console.log(f(parm));
-                    stack.resRight.pop();//clean stack
+                    stack.tempValueList.reduce();//clean stack
                 }
                 else if((tempValueL.getLength()!=0) && (!tempValueL.isWaiting())){//when we are in a fork, all the children are executed; node 31/46
                     joinNode(node,sigma,stack);
                 }
                 else{//when we are in the children of a fork
-                    let parm = stack.resRight;//get value list from stack
-                    let promise = definePromiseVoid(f,parm);
-                    tempValueL.addValueLast(promise);
-                    stack.resRight.pop();//clean stack
+                    let parm = stack.tempValueList;//get value list from stack
+                    stack.tempFunction.addValueLast(f(parm))
+                    
+                    //let promise = definePromiseVoid(f,parm);
+                    //tempValueL.addValueLast(promise);
+                    stack.tempValueList.reduce();//clean stack
                 }
 
             }
 }
+*/
 
-/*async function forkNode(currentNode:Node,sigma:Map<string,any>,stack:Stack): Promise<void>{
-    currentNode.outputEdges.forEach(element => {
-        let nextNode = element.to; 
-        visitAllNodes(nextNode,sigma,stack);
-    });
-    return ;
-}*/
+
+function nodeCode(node:Node,sigma:Map<string,any>,stack:Stack):void{
+    let functionName="function" + node.functionsNames[0];
+    let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);
+    let tempValueL = stack.tempFunction;
+
+    if((stack.fork.length != 0) ){
+        tempValueL.addValueLast(f);
+    }else{
+        //not in a fork, call function 
+        if(node.params.length < 1){         //call function without params
+            if(node.returnType == "void" ){
+                console.log(f());
+            }
+        }
+        else{                               //call function with params
+
+            if(node.returnType == "void"){
+                let param = stack.tempValueList.last().list;
+                console.log(f(param));
+                stack.tempValueList.reduce();
+            }else{//store returned value
+                stack.tempValueList.addTempValue(1);
+                let param = stack.tempValueList.last();
+                stack.tempValueList.addValueLast(f(param));
+                stack.tempValueList.reduce();
+            }
+        }
+    }
+}
 
 //If the Andjoin node in a fork or not!**********************************************************************
+/*
 function joinNode(node:Node,sigma:Map<string,any>,stack:Stack):void{
     if(node.functionsDefs.length!=0){
         let functionName="function" + node.functionsNames[0];
         let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);
         let l = stack.tempValueList.last().list;
         console.log(functionName + " return " + f(l))
-        stack.resRight.push(f(l))
+        stack.tempValueList.addValueLast(f(l))
     }
 }
-
 
 function evaluateEdgeLable(edge : Edge, resRight:number):boolean{
     //get code from: "(VarRef3_4_3_6terminates == true)"
@@ -305,9 +360,73 @@ function evaluateEdgeLable(edge : Edge, resRight:number):boolean{
     return bool;
 }
 
+/**************************************Asycn********************************************/
 /*
-function extractBetween(str: string, start: string, end: string): string {
-    const startIndex = str.indexOf(start);
-    const endIndex = str.indexOf(end, startIndex + start.length);
-    return str.substring(startIndex + start.length, endIndex);
-}*/
+//When call function : no any parameter, function return type == void -> call function
+function waitVoid(fList:TempValueList<(...args: any[]) => any>) {
+    return new Promise<void>(function(resolve) {
+        let flist = fList.last().list;
+        flist.map((f => f()))
+        resolve();
+    });
+}
+
+//When call function : no any parameter, function return type != void -> call function; add function resultat in temp list
+function wait(fList:TempValueList<(...args: any[]) => any>, tempParam:TempValueList<number>) {
+    return new Promise<void>(function(resolve) {
+        let flist = fList.last().list;
+        flist.map((f => tempParam.addTempValue(f())))
+        resolve();
+    });
+}
+
+//When call function: with parametre which is a list, function return type == void -> call function
+function waitParamVoid(fList:TempValueList<(...args: any[]) => any>, paramList: TempValueList<any>) {
+    return new Promise<void>(function(resolve) {
+        let list = fList.last().list;
+        let plist = paramList.last().list;
+        if (list.length !== plist.length) {
+            throw new Error("Function definition list and parameter list must have the same length");
+        }
+        list.map((f, index) => f(plist[index]));
+        resolve();
+    });
+}
+*/
+//When call function: with parametre which is a list, function return type != void -> call function; add function resultat in temp list
+function waitParam(fList:TempValueList<(...args: any[]) => any>, paramList: number[], tempfunctionValue:TempValueList<number>) {
+    return new Promise<void>(function(resolve) {
+        console.log("yes0");
+        let list = fList.last().list;
+        list.map((f, index) => (tempfunctionValue.addValueLast(f(paramList[index]))));
+        console.log("yes1");
+        resolve();
+    });
+}
+
+//with function list
+async function handleJoinNode(stack:Stack,node:Node,sigma:Map<string,any>) {
+    let forkList: number[] = stack.fork;
+    forkList[forkList.length - 1]--;
+    
+    if(forkList[forkList.length-1]==0 ){//have visited all children of the current fork
+        let functionList = stack.tempFunction;
+        let paramList = [...stack.tempValueList.last().list];
+        await waitParam(functionList, paramList, stack.tempValueList).then(function(){//call children s fonctions; resultat stroed in stack
+            console.log("yes2");
+            stack.tempPromiseFunction.reduce();
+            if (node.functionsDefs.length != 0){
+                let functionName="function" + node.functionsNames[0];
+                let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);
+                let paramList = [...stack.tempValueList.last().list];
+                stack.tempValueList.reduce();
+                if(f(paramList) != undefined){
+                    stack.tempValueList.addTempValue(1);
+                    stack.tempValueList.addValueLast(f(paramList));
+                }else{
+                    console.log(f(paramList));
+                }
+            }
+        });
+    } 
+}
