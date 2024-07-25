@@ -10,10 +10,9 @@ import {  TempValueList/*,TempValue,StackTempList*/ } from './TempValueList';
 
 class Stack {
     fork: number[];                             //number of the fork children
-    //resRight : number[];                        //value outside of a fork
+    resRight : number[][];                        //value outside of a fork
     forkNode : Node[];                        //node uid
     tempValueList : TempValueList<number>;      //value inside of a fork
-    tempPromiseFunction :  TempValueList<(()=>Promise<void>)>;
     tempChildren : TempValueList<Node>;          //node.uid
     tempFunction : TempValueList<(...args: any[]) => any>;
     
@@ -21,9 +20,8 @@ class Stack {
     constructor() {
         this.fork = [];
         this.forkNode = [];
-        //this.resRight = [];
+        this.resRight = [];
         this.tempValueList = new TempValueList<number>();
-        this.tempPromiseFunction = new TempValueList<(()=>Promise<void>)>;
         this.tempChildren = new TempValueList<Node>();
         this.tempFunction = new TempValueList<(...args: any[]) => any>;
     }
@@ -73,7 +71,7 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
     var currentNode : Node = initialState;
     while(currentNode.outputEdges && ((currentNode.outputEdges[0] && currentNode.outputEdges[0].to) || (currentNode.outputEdges[1] && currentNode.outputEdges[1].to))){
         let node = currentNode;
-        if(node.uid == 27){
+        if(node.uid == 16){
             console.log("hihi");
         }
         switch(node.getType()){
@@ -114,7 +112,6 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
                 if( forklist[forklist.length-1] == undefined || stack.forkNode[forklist.length-1].uid != node.uid ){ //the 1st time to visit this fork node
                     let children = currentNode.outputEdges;
                     stack.tempValueList.addTempValue(children.length);         //reserve places in stack : value
-                    stack.tempPromiseFunction.addTempValue(children.length);   //reserve places in stack : Promise
                     stack.tempFunction.addTempValue(children.length);          //reserve places in stack : Function
                     stack.tempChildren.addTempValue(children.length);
                     stack.fork.push(children.length);                          //get in the fork
@@ -199,6 +196,7 @@ async function visitAllNodes(initialState : Node , sigma: Map<string, any>, stac
 
     }
     console.log(sigma);
+    console.log(stack);
 }
 
 //evaluate the functions that are in the nodes
@@ -299,6 +297,9 @@ function nodeCode(node:Node,sigma:Map<string,any>,stack:Stack):void{
 
     if((stack.fork.length != 0) ){
         tempValueL.addValueLast(f);
+        if(node.params.length == 0){
+            stack.tempValueList.addTempValue(1);//add an empty list
+        }
     }else{
         //not in a fork, call function 
         if(node.params.length < 1){         //call function without params
@@ -357,52 +358,32 @@ function evaluateEdgeLable(edge : Edge, resRight:number):boolean{
         `)
     return bool;
 }
+*/
 
 /**************************************Asycn********************************************/
-/*
-//When call function : no any parameter, function return type == void -> call function
-function waitVoid(fList:TempValueList<(...args: any[]) => any>) {
-    return new Promise<void>(function(resolve) {
-        let flist = fList.last().list;
-        flist.map((f => f()))
-        resolve();
-    });
-}
 
-//When call function : no any parameter, function return type != void -> call function; add function resultat in temp list
-function wait(fList:TempValueList<(...args: any[]) => any>, tempParam:TempValueList<number>) {
-    return new Promise<void>(function(resolve) {
-        let flist = fList.last().list;
-        flist.map((f => tempParam.addTempValue(f())))
-        resolve();
-    });
-}
-
-//When call function: with parametre which is a list, function return type == void -> call function
-function waitParamVoid(fList:TempValueList<(...args: any[]) => any>, paramList: TempValueList<any>) {
-    return new Promise<void>(function(resolve) {
-        let list = fList.last().list;
-        let plist = paramList.last().list;
-        if (list.length !== plist.length) {
-            throw new Error("Function definition list and parameter list must have the same length");
+function waitParam(fList:Array<(...args: any[]) => any>, tempfunctionValue:TempValueList<number>) {
+    let paramListPromise:number[][]= [];//copy value destination
+        //count nombre of the function, and take the same number of the value list from the end of the tempvaleurList
+        let nombreOfFunction : number = fList.length;
+        let numberOfValueList : number = tempfunctionValue.getLength();
+            
+        for(let i = numberOfValueList-nombreOfFunction; i < numberOfValueList ; i++){
+            let list : number[] = [...tempfunctionValue.last().list];
+            paramListPromise.push(list);
+            tempfunctionValue.reduce();
         }
-        list.map((f, index) => f(plist[index]));
-        resolve();
-    });
-}
-*/
-//When call function: with parametre which is a list, function return type != void -> call function; add function resultat in temp list
-function waitParam(fList:TempValueList<(...args: any[]) => any>, paramList: number[][], tempfunctionValue:TempValueList<number>) {
+        
+
     return new Promise<void>(function(resolve) {
         console.log("yes0");
-        let list = fList.last().list;
-        //list.map((f, index) => (tempfunctionValue.addValueLast(f(paramList[index]))));
-        list.map((f, index) => {
-            if(f(paramList[index]) != undefined){
-                tempfunctionValue.addValueLast(f(paramList[index]));
-                console.log("yes1 : function return "+ f(paramList[index]));
+        paramListPromise=getMirror(paramListPromise);
+        fList.map((f, index) => {
+            if(f(paramListPromise[index]) != undefined){
+                tempfunctionValue.addValueLast(f(paramListPromise[index]));
+                console.log("yes1 : function return "+ f(paramListPromise[index]));
             }else{
-                console.log(f(paramList[index]));
+                console.log(f(paramListPromise[index]));
                 console.log("yes2 : function type void");
             }   
         }
@@ -411,33 +392,43 @@ function waitParam(fList:TempValueList<(...args: any[]) => any>, paramList: numb
     });
 }
 
+
 //with function list
 async function handleJoinNode(stack:Stack,node:Node,sigma:Map<string,any>) {
     let forkList: number[] = stack.fork;
     forkList[forkList.length - 1]--;
     
     if(forkList[forkList.length-1]==0 ){//have visited all children of the current fork
-        let functionList = stack.tempFunction;
-        let paramListPromise:number[][]=[];
-        stack.tempValueList.last().list.forEach(element => {
-            paramListPromise.push([element]);
-        });
-
-        await waitParam(functionList, paramListPromise, stack.tempValueList).then(function(){//call children s fonctions; resultat stroed in stack
+        await waitParam(stack.tempFunction.last().list, stack.tempValueList).then(function(){//call children s fonctions; resultat stroed in stack
             console.log("yes3");
             stack.tempFunction.reduce();
+            //code in AndJoin Node
             if (node.functionsDefs.length != 0){
                 let functionName="function" + node.functionsNames[0];
                 let f = defineFunction(functionName,node.params,node.functionsDefs,sigma);
                 let paramList = [...stack.tempValueList.last().list];
                 stack.tempValueList.reduce();
                 if(f(paramList) != undefined){
-                    //stack.tempValueList.addTempValue(1);
+                    stack.tempValueList.addTempValue(1);
                     stack.tempValueList.addValueLast(f(paramList));
                 }else{
                     console.log(f(paramList));
                 }
+            }else{
+                stack.tempValueList.reduce();
             }
         });
     } 
+}
+
+
+function getMirror(list: number[][]): number[][] {
+    let listMirror: number[][] = [];
+    while (list.length > 0) {
+        let ele = list.pop();
+        if (ele) {
+            listMirror.push(ele);
+        }
+    }
+    return listMirror;
 }
